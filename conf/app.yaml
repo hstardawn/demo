@@ -1,0 +1,26 @@
+app:
+  name: app # 应用名称
+  env: dev # 应用环境 dev|test|prod
+
+http_server:
+  log:
+    # 仅在本地开发调试时打开
+    # access_filename: "/dev/stdout"
+    # error_filename: "/dev/stderr"
+
+log:
+  # 仅在本地开发调试时打开
+  # filename: "/dev/stdout"
+
+resty:
+
+biz:
+
+mid_cors:
+  allow_origins: [
+      # 本地/测试等环境通配 正式环境须去除
+      "*",
+      "https://test.*.com",
+      # 生产环境需配置域名列表
+      "https://prod.*.com",
+    ]
