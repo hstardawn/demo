@@ -20,7 +20,7 @@ func Route(router *gin.Engine) {
 
 		userGroup := r.Group("/user")
 		{
-			userGroup.POST("/upload_image", api.UploadAvatarHandler())
+			userGroup.POST("/upload_image", api.UploadImageHandler())
 		}
 
 	}
