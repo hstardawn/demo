@@ -38,3 +38,5 @@ go.work.sum
 # yaml
 db.yaml
 redis.yaml
+
+static

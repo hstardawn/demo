@@ -1,6 +1,7 @@
-package api
+package user
 
 import (
+	"app/service"
 	"mime/multipart"
 	"reflect"
 	"runtime"
@@ -46,7 +47,10 @@ func (u *UploadImageApi) Run(ctx *gin.Context) kit.Code {
 		return comm.CodeParameterInvalid
 	}
 
-	uploadedURL := "/static/uploads/" + file.Filename
+	uploadedURL, err := service.SaveUploadedImage(ctx, file)
+	if err != nil {
+		return comm.CodeSaveError
+	}
 
 	u.Response = UploadImageApiResponse{
 		URL: uploadedURL,

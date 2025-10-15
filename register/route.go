@@ -1,6 +1,7 @@
 package register
 
 import (
+	"app/api/user"
 	"slices"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,8 @@ func Route(router *gin.Engine) {
 
 		userGroup := r.Group("/user")
 		{
-			userGroup.POST("/upload_image", api.UploadImageHandler())
+			userGroup.POST("/upload_image", user.UploadImageHandler())
+			userGroup.POST("/register", user.RegisterHandler())
 		}
 
 	}

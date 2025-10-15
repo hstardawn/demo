@@ -27,4 +27,8 @@ var (
 )
 
 // 业务错误码 从 30000 开始
-const ()
+var (
+	CodeUserExisted = kit.NewCode(30000, "用户已存在")
+	CodeSaveError   = kit.NewCode(30001, "保存失败")
+	CodeHashError   = kit.NewCode(30002, "加密失败")
+)
