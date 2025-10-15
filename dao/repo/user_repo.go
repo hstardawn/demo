@@ -24,3 +24,21 @@ func (r *UserRepo) FindByID(ctx context.Context, id int64) (*model.User, error) 
 	}
 	return record, nil
 }
+
+func (r *UserRepo) FindByUsername(ctx context.Context, username string) (*model.User, error) {
+	do := query.Use(ndb.Pick()).User
+	record, err := do.WithContext(ctx).Where(do.Username.Eq(username)).First()
+	if err != nil {
+		return nil, err
+	}
+	return record, nil
+}
+
+func (r *UserRepo) CreatUser(ctx context.Context, user *model.User) error {
+	do := query.Use(ndb.Pick()).User
+	err := do.WithContext(ctx).Create(user)
+	if err != nil {
+		return err
+	}
+	return nil
+}

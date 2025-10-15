@@ -23,6 +23,7 @@ func Route(router *gin.Engine) {
 		{
 			userGroup.POST("/upload_image", user.UploadImageHandler())
 			userGroup.POST("/register", user.RegisterHandler())
+			userGroup.POST("/login", user.LoginHandler())
 		}
 
 	}

@@ -2,9 +2,8 @@ package user
 
 import (
 	"app/dao/model"
-	"app/dao/query"
+	"app/dao/repo"
 	"app/service"
-	"github.com/zjutjh/mygo/ndb"
 	"mime/multipart"
 	"reflect"
 	"runtime"
@@ -46,18 +45,12 @@ type RegisterApiResponse struct {
 
 // Run Api业务逻辑执行点
 func (r *RegisterApi) Run(ctx *gin.Context) kit.Code {
+	u := repo.NewUserRepo()
 	register := r.Request.Body
-	db := ndb.Pick()
-	if db == nil {
-		return comm.CodeDatabaseError
-	}
-	userQuery := query.Use(db).User
-
-	user, err := userQuery.Where(userQuery.Username.Eq(register.Username)).First()
+	user, err := u.FindByUsername(ctx, register.Username)
 	if err == nil && user != nil {
 		return comm.CodeUserExisted
 	}
-
 	url, err := service.SaveUploadedImage(ctx, register.Avatar)
 	if err != nil {
 		return comm.CodeSaveError
@@ -73,7 +66,7 @@ func (r *RegisterApi) Run(ctx *gin.Context) kit.Code {
 		Name:     register.Name,
 	}
 
-	err = userQuery.Create(&newUser)
+	err = u.CreatUser(ctx, &newUser)
 	if err != nil {
 		return comm.CodeDatabaseError
 	}

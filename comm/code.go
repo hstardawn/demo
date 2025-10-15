@@ -28,7 +28,9 @@ var (
 
 // 业务错误码 从 30000 开始
 var (
-	CodeUserExisted = kit.NewCode(30000, "用户已存在")
-	CodeSaveError   = kit.NewCode(30001, "保存失败")
-	CodeHashError   = kit.NewCode(30002, "加密失败")
+	CodeUserExisted   = kit.NewCode(30000, "用户已存在")
+	CodeSaveError     = kit.NewCode(30001, "保存失败")
+	CodeHashError     = kit.NewCode(30002, "加密失败")
+	CodeUserNotFound  = kit.NewCode(30003, "用户不存在")
+	CodePasswordError = kit.NewCode(30004, "密码错误")
 )
