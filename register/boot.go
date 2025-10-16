@@ -1,7 +1,9 @@
 package register
 
 import (
+	"app/register/generate"
 	"fmt"
+	"github.com/zjutjh/mygo/jwt"
 
 	"github.com/zjutjh/mygo/config"
 	"github.com/zjutjh/mygo/feishu"
@@ -18,8 +20,9 @@ import (
 func Boot() kernel.BootList {
 	return kernel.BootList{
 		// 基础引导器
-		feishu.Boot(), // 飞书Bot (消息提醒)
-		nlog.Boot(),   // 业务日志
+		feishu.Boot(),   // 飞书Bot (消息提醒)
+		nlog.Boot(),     // 业务日志
+		generate.Boot(), //导入生成代码
 
 		// Client引导器
 		ndb.Boot(),   // DB
@@ -29,6 +32,7 @@ func Boot() kernel.BootList {
 		// 业务引导器
 		BizConfBoot(),
 		AppBoot(),
+		jwt.Boot(),
 	}
 }
 

@@ -12,9 +12,7 @@ type Comment struct {
 	UserID    int64  `gorm:"column:user_id;not null;comment:评论者ID" json:"user_id"` // 评论者ID
 	Content   string `gorm:"column:content;not null;comment:评论内容" json:"content"`  // 评论内容
 	ParentID  int64  `gorm:"column:parent_id;comment:父评论ID" json:"parent_id"`      // 父评论ID
-	DeletedAt int8   `gorm:"column:deleted_at;not null" json:"deleted_at"`
-	Visible   int8   `gorm:"column:visible;not null;default:1;comment:可见性" json:"visible"` // 可见性
-	Anonymous int8   `gorm:"column:anonymous;not null;comment:匿名" json:"anonymous"`        // 匿名
+	IsDeleted bool   `gorm:"column:is_deleted;not null" json:"is_deleted"`
 	BaseModel `json:"-"`
 }
 

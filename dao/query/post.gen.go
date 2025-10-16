@@ -30,11 +30,14 @@ func newPost(db *gorm.DB, opts ...gen.DOOption) post {
 	_post.ALL = field.NewAsterisk(tableName)
 	_post.ID = field.NewInt64(tableName, "id")
 	_post.UserID = field.NewInt64(tableName, "user_id")
+	_post.Name = field.NewString(tableName, "name")
 	_post.Content = field.NewString(tableName, "content")
-	_post.IsDeleted = field.NewInt8(tableName, "is_deleted")
+	_post.IsDeleted = field.NewBool(tableName, "is_deleted")
 	_post.ImageUrls = field.NewString(tableName, "image_urls")
 	_post.Ctime = field.NewInt64(tableName, "ctime")
 	_post.Utime = field.NewInt64(tableName, "utime")
+	_post.IsAnonymous = field.NewBool(tableName, "is_anonymous")
+	_post.IsVisible = field.NewBool(tableName, "is_visible")
 
 	_post.fillFieldMap()
 
@@ -44,14 +47,17 @@ func newPost(db *gorm.DB, opts ...gen.DOOption) post {
 type post struct {
 	postDo
 
-	ALL       field.Asterisk
-	ID        field.Int64  // 帖子ID
-	UserID    field.Int64  // 用户ID
-	Content   field.String // 内容
-	IsDeleted field.Int8
-	ImageUrls field.String // 图片路径
-	Ctime     field.Int64  // 创建时间
-	Utime     field.Int64  // 修改时间
+	ALL         field.Asterisk
+	ID          field.Int64  // 帖子ID
+	UserID      field.Int64  // 用户ID
+	Name        field.String // 昵称
+	Content     field.String // 内容
+	IsDeleted   field.Bool
+	ImageUrls   field.String // 图片路径
+	Ctime       field.Int64  // 创建时间
+	Utime       field.Int64  // 修改时间
+	IsAnonymous field.Bool   // 匿名
+	IsVisible   field.Bool   // 可见性
 
 	fieldMap map[string]field.Expr
 }
@@ -70,11 +76,14 @@ func (p *post) updateTableName(table string) *post {
 	p.ALL = field.NewAsterisk(table)
 	p.ID = field.NewInt64(table, "id")
 	p.UserID = field.NewInt64(table, "user_id")
+	p.Name = field.NewString(table, "name")
 	p.Content = field.NewString(table, "content")
-	p.IsDeleted = field.NewInt8(table, "is_deleted")
+	p.IsDeleted = field.NewBool(table, "is_deleted")
 	p.ImageUrls = field.NewString(table, "image_urls")
 	p.Ctime = field.NewInt64(table, "ctime")
 	p.Utime = field.NewInt64(table, "utime")
+	p.IsAnonymous = field.NewBool(table, "is_anonymous")
+	p.IsVisible = field.NewBool(table, "is_visible")
 
 	p.fillFieldMap()
 
@@ -91,14 +100,17 @@ func (p *post) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *post) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 7)
+	p.fieldMap = make(map[string]field.Expr, 10)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["user_id"] = p.UserID
+	p.fieldMap["name"] = p.Name
 	p.fieldMap["content"] = p.Content
 	p.fieldMap["is_deleted"] = p.IsDeleted
 	p.fieldMap["image_urls"] = p.ImageUrls
 	p.fieldMap["ctime"] = p.Ctime
 	p.fieldMap["utime"] = p.Utime
+	p.fieldMap["is_anonymous"] = p.IsAnonymous
+	p.fieldMap["is_visible"] = p.IsVisible
 }
 
 func (p post) clone(db *gorm.DB) post {

@@ -36,7 +36,7 @@ func main() {
 
 	m := map[string]func(detailType gorm.ColumnType) (fieldType string){
 		"tinyint": func(detailType gorm.ColumnType) (fieldType string) {
-			return "int8"
+			return "bool"
 		},
 	}
 	g.WithDataTypeMap(m)

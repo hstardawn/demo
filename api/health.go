@@ -1,15 +1,14 @@
 package api
 
 import (
-	"reflect"
-	"runtime"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/zjutjh/mygo/foundation/reply"
 	"github.com/zjutjh/mygo/kit"
 	"github.com/zjutjh/mygo/nlog"
 	"github.com/zjutjh/mygo/swagger"
+	"reflect"
+	"runtime"
+	"time"
 
 	"app/comm"
 )
@@ -36,6 +35,15 @@ type HealthApiResponse struct {
 
 // Run Api业务逻辑执行点
 func (h *HealthApi) Run(ctx *gin.Context) kit.Code {
+	if time.Now().Unix()%2 == 0 {
+		return comm.CodeTooFrequently
+	}
+	if time.Now().Unix()%5 == 0 {
+		return comm.CodeThirdServiceError
+	}
+	if time.Now().Unix()%7 == 0 {
+		return comm.CodeDataParseError
+	}
 	h.Response.Now = time.Now().Unix()
 	return comm.CodeOK
 }

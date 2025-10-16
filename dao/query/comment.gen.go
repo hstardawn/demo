@@ -33,9 +33,7 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 	_comment.UserID = field.NewInt64(tableName, "user_id")
 	_comment.Content = field.NewString(tableName, "content")
 	_comment.ParentID = field.NewInt64(tableName, "parent_id")
-	_comment.DeletedAt = field.NewInt8(tableName, "deleted_at")
-	_comment.Visible = field.NewInt8(tableName, "visible")
-	_comment.Anonymous = field.NewInt8(tableName, "anonymous")
+	_comment.IsDeleted = field.NewBool(tableName, "is_deleted")
 	_comment.Ctime = field.NewInt64(tableName, "ctime")
 	_comment.Utime = field.NewInt64(tableName, "utime")
 
@@ -53,9 +51,7 @@ type comment struct {
 	UserID    field.Int64  // 评论者ID
 	Content   field.String // 评论内容
 	ParentID  field.Int64  // 父评论ID
-	DeletedAt field.Int8
-	Visible   field.Int8  // 可见性
-	Anonymous field.Int8  // 匿名
+	IsDeleted field.Bool
 	Ctime     field.Int64 // 创建时间
 	Utime     field.Int64 // 修改时间
 
@@ -79,9 +75,7 @@ func (c *comment) updateTableName(table string) *comment {
 	c.UserID = field.NewInt64(table, "user_id")
 	c.Content = field.NewString(table, "content")
 	c.ParentID = field.NewInt64(table, "parent_id")
-	c.DeletedAt = field.NewInt8(table, "deleted_at")
-	c.Visible = field.NewInt8(table, "visible")
-	c.Anonymous = field.NewInt8(table, "anonymous")
+	c.IsDeleted = field.NewBool(table, "is_deleted")
 	c.Ctime = field.NewInt64(table, "ctime")
 	c.Utime = field.NewInt64(table, "utime")
 
@@ -100,15 +94,13 @@ func (c *comment) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *comment) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 10)
+	c.fieldMap = make(map[string]field.Expr, 8)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["post_id"] = c.PostID
 	c.fieldMap["user_id"] = c.UserID
 	c.fieldMap["content"] = c.Content
 	c.fieldMap["parent_id"] = c.ParentID
-	c.fieldMap["deleted_at"] = c.DeletedAt
-	c.fieldMap["visible"] = c.Visible
-	c.fieldMap["anonymous"] = c.Anonymous
+	c.fieldMap["is_deleted"] = c.IsDeleted
 	c.fieldMap["ctime"] = c.Ctime
 	c.fieldMap["utime"] = c.Utime
 }

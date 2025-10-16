@@ -1,23 +1,22 @@
-package user
+package api
 
 import (
 	"app/service"
-	"mime/multipart"
-	"reflect"
-	"runtime"
-
 	"github.com/gin-gonic/gin"
 	"github.com/zjutjh/mygo/foundation/reply"
 	"github.com/zjutjh/mygo/kit"
 	"github.com/zjutjh/mygo/nlog"
 	"github.com/zjutjh/mygo/swagger"
+	"mime/multipart"
+	"reflect"
+	"runtime"
 
 	"app/comm"
 )
 
 // UploadImageHandler API router注册点
 func UploadImageHandler() gin.HandlerFunc {
-	api := &UploadImageApi{}
+	api := UploadImageApi{}
 	swagger.CM[runtime.FuncForPC(reflect.ValueOf(hfUploadImage).Pointer()).Name()] = api
 	return hfUploadImage
 }
@@ -31,13 +30,13 @@ type UploadImageApi struct {
 // UploadImageApiRequest 请求参数
 type UploadImageApiRequest struct {
 	Body struct {
-		File *multipart.FileHeader `form:"file" binding:"required"` // multipart/form-data 表单字段 file
+		File *multipart.FileHeader `form:"file" binding:"required" desc:"文件上传"` // multipart/form-data 表单字段 file
 	}
 }
 
 // UploadImageApiResponse 响应数据
 type UploadImageApiResponse struct {
-	URL string `json:"url"` // 上传后的图片URL
+	URL string `json:"url" desc:"上传后图片url"` // 上传后的图片URL
 }
 
 // Run Api业务逻辑执行点
@@ -49,6 +48,7 @@ func (u *UploadImageApi) Run(ctx *gin.Context) kit.Code {
 
 	uploadedURL, err := service.SaveUploadedImage(ctx, file)
 	if err != nil {
+		nlog.Pick().WithContext(ctx).WithError(err).Warn("图片保存失败")
 		return comm.CodeSaveError
 	}
 

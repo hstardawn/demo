@@ -33,4 +33,5 @@ var (
 	CodeHashError     = kit.NewCode(30002, "加密失败")
 	CodeUserNotFound  = kit.NewCode(30003, "用户不存在")
 	CodePasswordError = kit.NewCode(30004, "密码错误")
+	CodeOutOfLimited  = kit.NewCode(30005, "图片数量超出限制")
 )

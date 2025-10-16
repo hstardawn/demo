@@ -24,3 +24,7 @@ mid_cors:
       # 生产环境需配置域名列表
       "https://prod.*.com",
     ]
+
+jwt:
+  secret: "1111"
+  expiration: "12h"

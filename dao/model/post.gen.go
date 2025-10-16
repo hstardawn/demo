@@ -8,11 +8,14 @@ const TableNamePost = "post"
 
 // Post mapped from table <post>
 type Post struct {
-	UserID    int64  `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"` // 用户ID
-	Content   string `gorm:"column:content;not null;comment:内容" json:"content"`   // 内容
-	IsDeleted int8   `gorm:"column:is_deleted;not null" json:"is_deleted"`
-	ImageUrls string `gorm:"column:image_urls;not null;comment:图片路径" json:"image_urls"` // 图片路径
-	BaseModel `json:"-"`
+	UserID      int64  `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"` // 用户ID
+	Name        string `gorm:"column:name;not null;comment:昵称" json:"name"`         // 昵称
+	Content     string `gorm:"column:content;not null;comment:内容" json:"content"`   // 内容
+	IsDeleted   bool   `gorm:"column:is_deleted;not null" json:"is_deleted"`
+	ImageUrls   string `gorm:"column:image_urls;not null;comment:图片路径" json:"image_urls"`          // 图片路径
+	IsAnonymous bool   `gorm:"column:is_anonymous;not null;comment:匿名" json:"is_anonymous"`        // 匿名
+	IsVisible   bool   `gorm:"column:is_visible;not null;default:1;comment:可见性" json:"is_visible"` // 可见性
+	BaseModel   `json:"-"`
 }
 
 // TableName Post's table name
