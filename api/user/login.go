@@ -2,11 +2,10 @@ package user
 
 import (
 	"app/dao/repo"
-	"errors"
-	"github.com/zjutjh/mygo/ndb"
-	"gorm.io/gorm"
+	"github.com/zjutjh/mygo/jwt"
 	"reflect"
 	"runtime"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/zjutjh/mygo/foundation/reply"
@@ -32,29 +31,36 @@ type LoginApi struct {
 
 type LoginApiRequest struct {
 	Body struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
+		Username string `json:"username" binding:"required" desc:"用户名"`
+		Password string `json:"password" binding:"required" desc:"密码"`
 	}
 }
 
-type LoginApiResponse struct{}
+type LoginApiResponse struct {
+	Token string `json:"token"`
+}
 
 // Run Api业务逻辑执行点
 func (l *LoginApi) Run(ctx *gin.Context) kit.Code {
 	u := repo.NewUserRepo()
 	loginRequest := l.Request.Body
-	db := ndb.Pick()
-	if db == nil {
-		return comm.CodeDatabaseError
-	}
 
 	user, err := u.FindByUsername(ctx, loginRequest.Username)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil {
+		return comm.CodeDatabaseError
+	}
+	if user == nil {
 		return comm.CodeUserNotFound
 	}
 	if !comm.CheckPassword(user.Password, loginRequest.Password) {
 		return comm.CodePasswordError
 	}
+	token, err := jwt.Pick().GenerateToken(strconv.FormatInt(user.ID, 10))
+	if err != nil {
+		nlog.Pick().WithContext(ctx).WithError(err).Warn("token生成失败")
+		return comm.CodeMiddlewareServiceError
+	}
+	l.Response.Token = token
 	return comm.CodeOK
 }
 

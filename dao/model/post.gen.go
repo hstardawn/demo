@@ -11,7 +11,9 @@ type Post struct {
 	UserID    int64  `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"` // 用户ID
 	Content   string `gorm:"column:content;not null;comment:内容" json:"content"`   // 内容
 	IsDeleted int8   `gorm:"column:is_deleted;not null" json:"is_deleted"`
-	ImageUrls string `gorm:"column:image_urls;not null;comment:图片路径" json:"image_urls"` // 图片路径
+	ImageUrls string `gorm:"column:image_urls;not null;comment:图片路径" json:"image_urls"`    // 图片路径
+	Anonymous int8   `gorm:"column:anonymous;not null;comment:n匿名" json:"anonymous"`       // n匿名
+	Visible   int8   `gorm:"column:visible;not null;default:1;comment:可见性" json:"visible"` // 可见性
 	BaseModel `json:"-"`
 }
 

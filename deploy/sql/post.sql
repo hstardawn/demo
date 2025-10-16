@@ -7,6 +7,8 @@ create table post
     is_deleted tinyint(1) default 0 not null,
     image_urls varchar(500)         not null comment '图片路径',
     ctime      bigint               not null comment '创建时间',
-    utime      bigint               not null comment '修改时间'
+    utime      bigint               not null comment '修改时间',
+    anonymous  tinyint(1) default 0 not null comment 'n匿名',
+    visible    tinyint(1) default 1 not null comment '可见性'
 );
 

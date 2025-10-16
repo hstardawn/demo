@@ -35,6 +35,8 @@ func newPost(db *gorm.DB, opts ...gen.DOOption) post {
 	_post.ImageUrls = field.NewString(tableName, "image_urls")
 	_post.Ctime = field.NewInt64(tableName, "ctime")
 	_post.Utime = field.NewInt64(tableName, "utime")
+	_post.Anonymous = field.NewInt8(tableName, "anonymous")
+	_post.Visible = field.NewInt8(tableName, "visible")
 
 	_post.fillFieldMap()
 
@@ -52,6 +54,8 @@ type post struct {
 	ImageUrls field.String // 图片路径
 	Ctime     field.Int64  // 创建时间
 	Utime     field.Int64  // 修改时间
+	Anonymous field.Int8   // n匿名
+	Visible   field.Int8   // 可见性
 
 	fieldMap map[string]field.Expr
 }
@@ -75,6 +79,8 @@ func (p *post) updateTableName(table string) *post {
 	p.ImageUrls = field.NewString(table, "image_urls")
 	p.Ctime = field.NewInt64(table, "ctime")
 	p.Utime = field.NewInt64(table, "utime")
+	p.Anonymous = field.NewInt8(table, "anonymous")
+	p.Visible = field.NewInt8(table, "visible")
 
 	p.fillFieldMap()
 
@@ -91,7 +97,7 @@ func (p *post) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *post) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 7)
+	p.fieldMap = make(map[string]field.Expr, 9)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["user_id"] = p.UserID
 	p.fieldMap["content"] = p.Content
@@ -99,6 +105,8 @@ func (p *post) fillFieldMap() {
 	p.fieldMap["image_urls"] = p.ImageUrls
 	p.fieldMap["ctime"] = p.Ctime
 	p.fieldMap["utime"] = p.Utime
+	p.fieldMap["anonymous"] = p.Anonymous
+	p.fieldMap["visible"] = p.Visible
 }
 
 func (p post) clone(db *gorm.DB) post {

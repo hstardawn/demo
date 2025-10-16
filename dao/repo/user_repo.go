@@ -2,6 +2,8 @@ package repo
 
 import (
 	"context"
+	"errors"
+	"gorm.io/gorm"
 
 	"github.com/zjutjh/mygo/ndb"
 
@@ -19,8 +21,8 @@ func NewUserRepo() *UserRepo {
 func (r *UserRepo) FindByID(ctx context.Context, id int64) (*model.User, error) {
 	do := query.Use(ndb.Pick()).User
 	record, err := do.WithContext(ctx).Where(do.ID.Eq(id)).First()
-	if err != nil {
-		return nil, err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
 	}
 	return record, nil
 }
@@ -28,6 +30,9 @@ func (r *UserRepo) FindByID(ctx context.Context, id int64) (*model.User, error) 
 func (r *UserRepo) FindByUsername(ctx context.Context, username string) (*model.User, error) {
 	do := query.Use(ndb.Pick()).User
 	record, err := do.WithContext(ctx).Where(do.Username.Eq(username)).First()
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +42,15 @@ func (r *UserRepo) FindByUsername(ctx context.Context, username string) (*model.
 func (r *UserRepo) CreatUser(ctx context.Context, user *model.User) error {
 	do := query.Use(ndb.Pick()).User
 	err := do.WithContext(ctx).Create(user)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *UserRepo) UpdateUser(ctx context.Context, user *model.User) error {
+	do := query.Use(ndb.Pick()).User
+	err := do.WithContext(ctx).Save(user)
 	if err != nil {
 		return err
 	}

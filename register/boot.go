@@ -2,6 +2,7 @@ package register
 
 import (
 	"fmt"
+	"github.com/zjutjh/mygo/jwt"
 
 	"github.com/zjutjh/mygo/config"
 	"github.com/zjutjh/mygo/feishu"
@@ -29,6 +30,7 @@ func Boot() kernel.BootList {
 		// 业务引导器
 		BizConfBoot(),
 		AppBoot(),
+		jwt.Boot(),
 	}
 }
 

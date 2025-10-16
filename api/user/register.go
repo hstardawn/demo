@@ -3,10 +3,10 @@ package user
 import (
 	"app/dao/model"
 	"app/dao/repo"
-	"app/service"
-	"mime/multipart"
+	"github.com/zjutjh/mygo/jwt"
 	"reflect"
 	"runtime"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/zjutjh/mygo/foundation/reply"
@@ -32,15 +32,15 @@ type RegisterApi struct {
 
 type RegisterApiRequest struct {
 	Body struct {
-		Username string                `form:"username" binding:"required"`
-		Password string                `form:"password" binding:"required"`
-		Name     string                `form:"name" binding:"required"`
-		Avatar   *multipart.FileHeader `form:"avatar" binding:"required"`
+		Username string `json:"username" binding:"required" desc:"用户名"`
+		Password string `json:"password" binding:"required" desc:"密码"`
+		Name     string `json:"name" binding:"required" desc:"昵称"`
+		Avatar   string `json:"avatar" binding:"required" desc:"头像"`
 	}
 }
 
 type RegisterApiResponse struct {
-	ID int64 `json:"id"`
+	Token string `json:"token"`
 }
 
 // Run Api业务逻辑执行点
@@ -48,12 +48,11 @@ func (r *RegisterApi) Run(ctx *gin.Context) kit.Code {
 	u := repo.NewUserRepo()
 	register := r.Request.Body
 	user, err := u.FindByUsername(ctx, register.Username)
-	if err == nil && user != nil {
-		return comm.CodeUserExisted
-	}
-	url, err := service.SaveUploadedImage(ctx, register.Avatar)
 	if err != nil {
 		return comm.CodeSaveError
+	}
+	if user != nil {
+		return comm.CodeUserExisted
 	}
 	password, err := comm.HashPassword(register.Password)
 	if err != nil {
@@ -62,7 +61,7 @@ func (r *RegisterApi) Run(ctx *gin.Context) kit.Code {
 	newUser := model.User{
 		Username: register.Username,
 		Password: password,
-		Avatar:   url,
+		Avatar:   register.Avatar,
 		Name:     register.Name,
 	}
 
@@ -70,7 +69,12 @@ func (r *RegisterApi) Run(ctx *gin.Context) kit.Code {
 	if err != nil {
 		return comm.CodeDatabaseError
 	}
-	r.Response.ID = newUser.ID
+	token, err := jwt.Pick().GenerateToken(strconv.FormatInt(newUser.ID, 10))
+	if err != nil {
+		nlog.Pick().WithContext(ctx).WithError(err).Warn("token生成失败")
+		return comm.CodeMiddlewareServiceError
+	}
+	r.Response.Token = token
 	return comm.CodeOK
 }
 
