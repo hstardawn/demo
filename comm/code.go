@@ -28,11 +28,15 @@ var (
 
 // 业务错误码 从 30000 开始
 var (
-	CodeUserExisted   = kit.NewCode(30000, "用户已存在")
-	CodeSaveError     = kit.NewCode(30001, "保存失败")
-	CodeHashError     = kit.NewCode(30002, "加密失败")
-	CodeUserNotFound  = kit.NewCode(30003, "用户不存在")
-	CodePasswordError = kit.NewCode(30004, "密码错误")
-	CodeOutOfLimited  = kit.NewCode(30005, "图片数量超出限制")
-	CodeBlockExisted  = kit.NewCode(30009, "已拉黑")
+	CodeUserExisted     = kit.NewCode(30000, "用户已存在")
+	CodeSaveError       = kit.NewCode(30001, "保存失败")
+	CodeHashError       = kit.NewCode(30002, "加密失败")
+	CodeUserNotFound    = kit.NewCode(30003, "用户不存在")
+	CodePasswordError   = kit.NewCode(30004, "密码错误")
+	CodeOutOfLimited    = kit.NewCode(30005, "图片数量超出限制")
+	CodeBlockExisted    = kit.NewCode(30009, "已拉黑")
+	CodeBlockNotExisted = kit.NewCode(30009, "未拉黑")
+	CodeUnblockError    = kit.NewCode(30010, "解除拉黑失败")
+	CodeSearchError     = kit.NewCode(30011, "查询拉黑关系失败")
+	CodeBlockError      = kit.NewCode(30012, "拉黑失败")
 )

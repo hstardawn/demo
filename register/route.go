@@ -28,6 +28,7 @@ func Route(router *gin.Engine) {
 			userGroup.POST("/login", user.LoginHandler())
 			userGroup.PUT("/update", middleware.Auth(true), user.UpdateHandler())
 			userGroup.POST("/block", middleware.Auth(true), user.BlockHandler())
+			userGroup.POST("/unblock", middleware.Auth(true), user.UnblockHandler())
 		}
 
 		postGroup := r.Group("/post", middleware.Auth(true))

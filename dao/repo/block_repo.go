@@ -37,11 +37,21 @@ func (r *BlockRepo) BlockUser(ctx context.Context, userID, blockedID int64) (err
 
 func (r *BlockRepo) UnBlockUser(ctx context.Context, userID, blockedID int64) error {
 	db := query.Use(ndb.Pick()).Block
-	record, err := db.WithContext(ctx).Where(db.BlockedID.Eq(blockedID), db.UserID.Eq(userID)).First()
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	// 查找拉黑记录
+	record, err := db.WithContext(ctx).Where(
+		db.BlockedID.Eq(blockedID),
+		db.UserID.Eq(userID),
+		db.Status.Is(true),
+	).First()
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
 		return err
 	}
-	_, err = db.WithContext(ctx).Where(db.ID.Eq(record.ID)).Update(db.Status, false)
+
+	_, err = db.WithContext(ctx).Where(db.ID.Eq(record.ID)).UpdateSimple(db.Status.Value(false))
 	return err
 }
 

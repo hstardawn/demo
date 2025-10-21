@@ -49,10 +49,12 @@ func init() {
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
-			comm.CodeDatabaseError,
 			comm.CodeNotLoggedIn,
 			comm.CodeParameterInvalid,
 			comm.CodeBlockExisted,
+			comm.CodeBlockNotExisted,
+			comm.CodeSearchError,
+			comm.CodeBlockError,
 		}
 		swagger.MustRegisterBusinessStatusCodes("app/api/user.hfBlock", statusCodes)
 	}
@@ -82,6 +84,20 @@ func init() {
 			comm.CodeHashError,
 		}
 		swagger.MustRegisterBusinessStatusCodes("app/api/user.hfRegister", statusCodes)
+	}
+
+	// api/user/unblock.go:77
+	{
+		statusCodes := []kit.Code{
+			comm.CodeOK,
+			comm.CodeDatabaseError,
+			comm.CodeNotLoggedIn,
+			comm.CodeParameterInvalid,
+			comm.CodeBlockExisted,
+			comm.CodeBlockNotExisted,
+			comm.CodeUnblockError,
+		}
+		swagger.MustRegisterBusinessStatusCodes("app/api/user.hfUnblock", statusCodes)
 	}
 
 	// api/user/update.go:102

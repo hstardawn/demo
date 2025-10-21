@@ -23,14 +23,14 @@ func BlockHandler() gin.HandlerFunc {
 }
 
 type BlockApi struct {
-	Info     struct{}         `name:"拉黑用户" desc:"拉黑"`
+	Info     struct{}         `name:"拉黑用户" desc:"拉黑用户"`
 	Request  BlockApiRequest  // API请求参数 (Uri/Header/Query/Body)
 	Response BlockApiResponse // API响应数据 (Body中的Data部分)
 }
 
 type BlockApiRequest struct {
 	Query struct {
-		BlockedId int64 `query:"blocked_id" binding:"required" desc:"拉黑用户ID"`
+		BlockedId int64 `form:"blocked_id" binding:"required" desc:"拉黑用户ID"`
 	}
 }
 
@@ -53,7 +53,7 @@ func (b *BlockApi) Run(ctx *gin.Context) kit.Code {
 
 	isBlocked, err := r.IsBlocked(ctx, uid, request.BlockedId)
 	if err != nil {
-		return comm.CodeDatabaseError
+		return comm.CodeSearchError
 	}
 	if isBlocked {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("拉黑关系已存在")
@@ -62,7 +62,7 @@ func (b *BlockApi) Run(ctx *gin.Context) kit.Code {
 	err = r.BlockUser(ctx, uid, request.BlockedId)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("拉黑失败")
-		return comm.CodeDatabaseError
+		return comm.CodeBlockError
 	}
 	return comm.CodeOK
 }
