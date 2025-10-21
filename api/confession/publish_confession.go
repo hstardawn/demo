@@ -1,4 +1,4 @@
-package user
+package confession
 
 import (
 	"app/dao/model"

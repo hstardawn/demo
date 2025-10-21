@@ -10,6 +10,7 @@ const TableNameBlock = "block"
 type Block struct {
 	UserID    int64 `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"`           // 用户ID
 	BlockedID int64 `gorm:"column:blocked_id;not null;comment:被拉黑的用户ID" json:"blocked_id"` // 被拉黑的用户ID
+	Status    bool  `gorm:"column:status;not null;default:1;comment:拉黑状态" json:"status"`   // 拉黑状态
 	BaseModel `json:"-"`
 }
 

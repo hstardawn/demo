@@ -1,6 +1,7 @@
 package register
 
 import (
+	"app/api/confession"
 	"app/api/user"
 	"github.com/zjutjh/mygo/jwt/middleware"
 	"slices"
@@ -26,9 +27,13 @@ func Route(router *gin.Engine) {
 			userGroup.POST("/register", user.RegisterHandler())
 			userGroup.POST("/login", user.LoginHandler())
 			userGroup.PUT("/update", middleware.Auth(true), user.UpdateHandler())
-			userGroup.POST("/publish_confession", middleware.Auth(true), user.PublishConfessionHandler())
+			userGroup.POST("/block", middleware.Auth(true), user.BlockHandler())
 		}
 
+		postGroup := r.Group("/post", middleware.Auth(true))
+		{
+			postGroup.POST("/publish_confession", confession.PublishConfessionHandler())
+		}
 	}
 }
 

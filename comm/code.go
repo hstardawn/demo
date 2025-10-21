@@ -34,4 +34,5 @@ var (
 	CodeUserNotFound  = kit.NewCode(30003, "用户不存在")
 	CodePasswordError = kit.NewCode(30004, "密码错误")
 	CodeOutOfLimited  = kit.NewCode(30005, "图片数量超出限制")
+	CodeBlockExisted  = kit.NewCode(30009, "已拉黑")
 )

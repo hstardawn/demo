@@ -33,6 +33,7 @@ func newBlock(db *gorm.DB, opts ...gen.DOOption) block {
 	_block.BlockedID = field.NewInt64(tableName, "blocked_id")
 	_block.Ctime = field.NewInt64(tableName, "ctime")
 	_block.Utime = field.NewInt64(tableName, "utime")
+	_block.Status = field.NewBool(tableName, "status")
 
 	_block.fillFieldMap()
 
@@ -48,6 +49,7 @@ type block struct {
 	BlockedID field.Int64 // 被拉黑的用户ID
 	Ctime     field.Int64 // 创建时间
 	Utime     field.Int64 // 修改时间
+	Status    field.Bool  // 拉黑状态
 
 	fieldMap map[string]field.Expr
 }
@@ -69,6 +71,7 @@ func (b *block) updateTableName(table string) *block {
 	b.BlockedID = field.NewInt64(table, "blocked_id")
 	b.Ctime = field.NewInt64(table, "ctime")
 	b.Utime = field.NewInt64(table, "utime")
+	b.Status = field.NewBool(table, "status")
 
 	b.fillFieldMap()
 
@@ -85,12 +88,13 @@ func (b *block) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *block) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 5)
+	b.fieldMap = make(map[string]field.Expr, 6)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["user_id"] = b.UserID
 	b.fieldMap["blocked_id"] = b.BlockedID
 	b.fieldMap["ctime"] = b.Ctime
 	b.fieldMap["utime"] = b.Utime
+	b.fieldMap["status"] = b.Status
 }
 
 func (b block) clone(db *gorm.DB) block {

@@ -1,6 +1,6 @@
 create table comment
 (
-    id         bigint               not null
+    id         bigint auto_increment
         primary key,
     post_id    bigint               null comment '帖子id',
     user_id    bigint               not null comment '评论者ID',

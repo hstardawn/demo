@@ -34,6 +34,29 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api.hfUploadImage", statusCodes)
 	}
 
+	// api/confession/publish_confession.go:73
+	{
+		statusCodes := []kit.Code{
+			comm.CodeOK,
+			comm.CodeDatabaseError,
+			comm.CodeParameterInvalid,
+			comm.CodeOutOfLimited,
+		}
+		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfPublishConfession", statusCodes)
+	}
+
+	// api/user/block.go:80
+	{
+		statusCodes := []kit.Code{
+			comm.CodeOK,
+			comm.CodeDatabaseError,
+			comm.CodeNotLoggedIn,
+			comm.CodeParameterInvalid,
+			comm.CodeBlockExisted,
+		}
+		swagger.MustRegisterBusinessStatusCodes("app/api/user.hfBlock", statusCodes)
+	}
+
 	// api/user/login.go:77
 	{
 		statusCodes := []kit.Code{
@@ -45,17 +68,6 @@ func init() {
 			comm.CodePasswordError,
 		}
 		swagger.MustRegisterBusinessStatusCodes("app/api/user.hfLogin", statusCodes)
-	}
-
-	// api/user/publish_confession.go:73
-	{
-		statusCodes := []kit.Code{
-			comm.CodeOK,
-			comm.CodeDatabaseError,
-			comm.CodeParameterInvalid,
-			comm.CodeOutOfLimited,
-		}
-		swagger.MustRegisterBusinessStatusCodes("app/api/user.hfPublishConfession", statusCodes)
 	}
 
 	// api/user/register.go:91
