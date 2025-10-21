@@ -39,4 +39,5 @@ var (
 	CodeUnblockError    = kit.NewCode(30010, "解除拉黑失败")
 	CodeSearchError     = kit.NewCode(30011, "查询拉黑关系失败")
 	CodeBlockError      = kit.NewCode(30012, "拉黑失败")
+	CodeListError       = kit.NewCode(30013, "获取拉黑列表失败")
 )

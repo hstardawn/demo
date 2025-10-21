@@ -59,6 +59,17 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api/user.hfBlock", statusCodes)
 	}
 
+	// api/user/get_blocked.go:86
+	{
+		statusCodes := []kit.Code{
+			comm.CodeOK,
+			comm.CodeNotLoggedIn,
+			comm.CodeParameterInvalid,
+			comm.CodeListError,
+		}
+		swagger.MustRegisterBusinessStatusCodes("app/api/user.hfGetBlocked", statusCodes)
+	}
+
 	// api/user/login.go:77
 	{
 		statusCodes := []kit.Code{
