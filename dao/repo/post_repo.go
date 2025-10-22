@@ -21,3 +21,12 @@ func (r *PostRepo) CreatePost(ctx context.Context, post *model.Post) (err error)
 	}
 	return nil
 }
+
+func (r *PostRepo) UpdatePost(ctx context.Context, post *model.Post) (err error) {
+	db := query.Use(ndb.Pick()).Post
+	err = db.WithContext(ctx).Save(post)
+	if err != nil {
+		return err
+	}
+	return nil
+}

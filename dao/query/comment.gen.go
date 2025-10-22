@@ -33,8 +33,8 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 	_comment.UserID = field.NewInt64(tableName, "user_id")
 	_comment.Content = field.NewString(tableName, "content")
 	_comment.ParentID = field.NewInt64(tableName, "parent_id")
-	_comment.IsDeleted = field.NewBool(tableName, "is_deleted")
-	_comment.Ctime = field.NewInt64(tableName, "ctime")
+	_comment.DeletedAt = field.NewField(tableName, "deleted_at")
+	_comment.CreatedAt = field.NewTime(tableName, "created_at")
 	_comment.Utime = field.NewInt64(tableName, "utime")
 
 	_comment.fillFieldMap()
@@ -43,7 +43,7 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 }
 
 type comment struct {
-	commentDo
+	commentDo commentDo
 
 	ALL       field.Asterisk
 	ID        field.Int64
@@ -51,9 +51,9 @@ type comment struct {
 	UserID    field.Int64  // 评论者ID
 	Content   field.String // 评论内容
 	ParentID  field.Int64  // 父评论ID
-	IsDeleted field.Bool
-	Ctime     field.Int64 // 创建时间
-	Utime     field.Int64 // 修改时间
+	DeletedAt field.Field  // 删除时间(软删除)
+	CreatedAt field.Time   // 创建时间
+	Utime     field.Int64  // 修改时间
 
 	fieldMap map[string]field.Expr
 }
@@ -75,14 +75,22 @@ func (c *comment) updateTableName(table string) *comment {
 	c.UserID = field.NewInt64(table, "user_id")
 	c.Content = field.NewString(table, "content")
 	c.ParentID = field.NewInt64(table, "parent_id")
-	c.IsDeleted = field.NewBool(table, "is_deleted")
-	c.Ctime = field.NewInt64(table, "ctime")
+	c.DeletedAt = field.NewField(table, "deleted_at")
+	c.CreatedAt = field.NewTime(table, "created_at")
 	c.Utime = field.NewInt64(table, "utime")
 
 	c.fillFieldMap()
 
 	return c
 }
+
+func (c *comment) WithContext(ctx context.Context) ICommentDo { return c.commentDo.WithContext(ctx) }
+
+func (c comment) TableName() string { return c.commentDo.TableName() }
+
+func (c comment) Alias() string { return c.commentDo.Alias() }
+
+func (c comment) Columns(cols ...field.Expr) gen.Columns { return c.commentDo.Columns(cols...) }
 
 func (c *comment) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := c.fieldMap[fieldName]
@@ -100,8 +108,8 @@ func (c *comment) fillFieldMap() {
 	c.fieldMap["user_id"] = c.UserID
 	c.fieldMap["content"] = c.Content
 	c.fieldMap["parent_id"] = c.ParentID
-	c.fieldMap["is_deleted"] = c.IsDeleted
-	c.fieldMap["ctime"] = c.Ctime
+	c.fieldMap["deleted_at"] = c.DeletedAt
+	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["utime"] = c.Utime
 }
 

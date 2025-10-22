@@ -31,8 +31,8 @@ func newBlock(db *gorm.DB, opts ...gen.DOOption) block {
 	_block.ID = field.NewInt64(tableName, "id")
 	_block.UserID = field.NewInt64(tableName, "user_id")
 	_block.BlockedID = field.NewInt64(tableName, "blocked_id")
-	_block.Ctime = field.NewInt64(tableName, "ctime")
-	_block.Utime = field.NewInt64(tableName, "utime")
+	_block.CreatedAt = field.NewTime(tableName, "created_at")
+	_block.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_block.Status = field.NewBool(tableName, "status")
 
 	_block.fillFieldMap()
@@ -41,14 +41,14 @@ func newBlock(db *gorm.DB, opts ...gen.DOOption) block {
 }
 
 type block struct {
-	blockDo
+	blockDo blockDo
 
 	ALL       field.Asterisk
 	ID        field.Int64
 	UserID    field.Int64 // 用户ID
 	BlockedID field.Int64 // 被拉黑的用户ID
-	Ctime     field.Int64 // 创建时间
-	Utime     field.Int64 // 修改时间
+	CreatedAt field.Time  // 创建时间
+	UpdatedAt field.Time  // 修改时间
 	Status    field.Bool  // 拉黑状态
 
 	fieldMap map[string]field.Expr
@@ -69,14 +69,22 @@ func (b *block) updateTableName(table string) *block {
 	b.ID = field.NewInt64(table, "id")
 	b.UserID = field.NewInt64(table, "user_id")
 	b.BlockedID = field.NewInt64(table, "blocked_id")
-	b.Ctime = field.NewInt64(table, "ctime")
-	b.Utime = field.NewInt64(table, "utime")
+	b.CreatedAt = field.NewTime(table, "created_at")
+	b.UpdatedAt = field.NewTime(table, "updated_at")
 	b.Status = field.NewBool(table, "status")
 
 	b.fillFieldMap()
 
 	return b
 }
+
+func (b *block) WithContext(ctx context.Context) IBlockDo { return b.blockDo.WithContext(ctx) }
+
+func (b block) TableName() string { return b.blockDo.TableName() }
+
+func (b block) Alias() string { return b.blockDo.Alias() }
+
+func (b block) Columns(cols ...field.Expr) gen.Columns { return b.blockDo.Columns(cols...) }
 
 func (b *block) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := b.fieldMap[fieldName]
@@ -92,8 +100,8 @@ func (b *block) fillFieldMap() {
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["user_id"] = b.UserID
 	b.fieldMap["blocked_id"] = b.BlockedID
-	b.fieldMap["ctime"] = b.Ctime
-	b.fieldMap["utime"] = b.Utime
+	b.fieldMap["created_at"] = b.CreatedAt
+	b.fieldMap["updated_at"] = b.UpdatedAt
 	b.fieldMap["status"] = b.Status
 }
 

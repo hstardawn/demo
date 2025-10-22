@@ -1,4 +1,0 @@
-feishu:
-  enable: false
-  notice_webhook: ""
-  notice_secret: ""

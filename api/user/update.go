@@ -59,14 +59,12 @@ func (u *UpdateApi) Run(ctx *gin.Context) kit.Code {
 	}
 
 	newUser := &model.User{
-		BaseModel: model.BaseModel{
-			ID:    user.ID,
-			Ctime: user.Ctime,
-		},
-		Username: user.Username,
-		Password: user.Password,
-		Name:     user.Name,
-		Avatar:   user.Avatar,
+		ID:        user.ID,
+		CreatedAt: user.CreatedAt,
+		Username:  user.Username,
+		Password:  user.Password,
+		Name:      user.Name,
+		Avatar:    user.Avatar,
 	}
 	if updateRequest.Password != "" {
 		password, err := comm.HashPassword(updateRequest.Password)

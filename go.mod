@@ -5,12 +5,14 @@ go 1.24.7
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/spf13/cast v1.10.0
 	github.com/spf13/cobra v1.10.1
-	github.com/zjutjh/mygo v1.3.3
+	github.com/zjutjh/mygo v1.4.0
 	golang.org/x/crypto v0.43.0
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.31.0
 	gorm.io/plugin/dbresolver v1.6.2
+	gorm.io/plugin/soft_delete v1.2.1
 )
 
 require (
@@ -50,12 +52,11 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.55.0 // indirect
-	github.com/redis/go-redis/v9 v9.14.0 // indirect
+	github.com/redis/go-redis/v9 v9.14.1 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
 	github.com/samber/do v1.6.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
-	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spf13/viper v1.21.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect

@@ -1,13 +1,13 @@
 package repo
 
 import (
+	"app/dao/model"
 	"context"
 	"errors"
 	"gorm.io/gorm"
 
 	"github.com/zjutjh/mygo/ndb"
 
-	"app/dao/model"
 	"app/dao/query"
 )
 

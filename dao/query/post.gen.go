@@ -32,10 +32,10 @@ func newPost(db *gorm.DB, opts ...gen.DOOption) post {
 	_post.UserID = field.NewInt64(tableName, "user_id")
 	_post.Name = field.NewString(tableName, "name")
 	_post.Content = field.NewString(tableName, "content")
-	_post.IsDeleted = field.NewBool(tableName, "is_deleted")
+	_post.DeletedAt = field.NewField(tableName, "deleted_at")
 	_post.ImageUrls = field.NewString(tableName, "image_urls")
-	_post.Ctime = field.NewInt64(tableName, "ctime")
-	_post.Utime = field.NewInt64(tableName, "utime")
+	_post.CreatedAt = field.NewTime(tableName, "created_at")
+	_post.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_post.IsAnonymous = field.NewBool(tableName, "is_anonymous")
 	_post.IsVisible = field.NewBool(tableName, "is_visible")
 
@@ -45,17 +45,17 @@ func newPost(db *gorm.DB, opts ...gen.DOOption) post {
 }
 
 type post struct {
-	postDo
+	postDo postDo
 
 	ALL         field.Asterisk
 	ID          field.Int64  // 帖子ID
 	UserID      field.Int64  // 用户ID
 	Name        field.String // 昵称
 	Content     field.String // 内容
-	IsDeleted   field.Bool
+	DeletedAt   field.Field  // 删除时间(软删除)
 	ImageUrls   field.String // 图片路径
-	Ctime       field.Int64  // 创建时间
-	Utime       field.Int64  // 修改时间
+	CreatedAt   field.Time   // 创建时间
+	UpdatedAt   field.Time   // 修改时间
 	IsAnonymous field.Bool   // 匿名
 	IsVisible   field.Bool   // 可见性
 
@@ -78,10 +78,10 @@ func (p *post) updateTableName(table string) *post {
 	p.UserID = field.NewInt64(table, "user_id")
 	p.Name = field.NewString(table, "name")
 	p.Content = field.NewString(table, "content")
-	p.IsDeleted = field.NewBool(table, "is_deleted")
+	p.DeletedAt = field.NewField(table, "deleted_at")
 	p.ImageUrls = field.NewString(table, "image_urls")
-	p.Ctime = field.NewInt64(table, "ctime")
-	p.Utime = field.NewInt64(table, "utime")
+	p.CreatedAt = field.NewTime(table, "created_at")
+	p.UpdatedAt = field.NewTime(table, "updated_at")
 	p.IsAnonymous = field.NewBool(table, "is_anonymous")
 	p.IsVisible = field.NewBool(table, "is_visible")
 
@@ -89,6 +89,14 @@ func (p *post) updateTableName(table string) *post {
 
 	return p
 }
+
+func (p *post) WithContext(ctx context.Context) IPostDo { return p.postDo.WithContext(ctx) }
+
+func (p post) TableName() string { return p.postDo.TableName() }
+
+func (p post) Alias() string { return p.postDo.Alias() }
+
+func (p post) Columns(cols ...field.Expr) gen.Columns { return p.postDo.Columns(cols...) }
 
 func (p *post) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := p.fieldMap[fieldName]
@@ -105,10 +113,10 @@ func (p *post) fillFieldMap() {
 	p.fieldMap["user_id"] = p.UserID
 	p.fieldMap["name"] = p.Name
 	p.fieldMap["content"] = p.Content
-	p.fieldMap["is_deleted"] = p.IsDeleted
+	p.fieldMap["deleted_at"] = p.DeletedAt
 	p.fieldMap["image_urls"] = p.ImageUrls
-	p.fieldMap["ctime"] = p.Ctime
-	p.fieldMap["utime"] = p.Utime
+	p.fieldMap["created_at"] = p.CreatedAt
+	p.fieldMap["updated_at"] = p.UpdatedAt
 	p.fieldMap["is_anonymous"] = p.IsAnonymous
 	p.fieldMap["is_visible"] = p.IsVisible
 }

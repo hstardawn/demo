@@ -8,7 +8,6 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 
-	"app/dao/model"
 	"app/register"
 )
 
@@ -30,28 +29,25 @@ func main() {
 
 	g := gen.NewGenerator(gen.Config{
 		OutPath: "./dao/query",
-		Mode:    gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface,
+		Mode:    gen.WithDefaultQuery | gen.WithQueryInterface,
 	})
 	g.UseDB(ndb.Pick())
 
-	m := map[string]func(detailType gorm.ColumnType) (fieldType string){
-		"tinyint": func(detailType gorm.ColumnType) (fieldType string) {
+	m := map[string]func(columnType gorm.ColumnType) (dataType string){
+		"tinyint": func(columnType gorm.ColumnType) (dataType string) {
 			return "bool"
 		},
 	}
 	g.WithDataTypeMap(m)
 
 	for _, table := range tables {
-		tableName := g.GenerateModel(table)
-		g.ApplyBasic(tableName)
-	}
-	for _, table := range tables {
-		tableName := g.GenerateModel(table,
-			gen.FieldIgnore("id", "ctime", "utime"),
-			gen.FieldRelateModel(field.BelongsTo, "", model.BaseModel{},
-				&field.RelateConfig{
-					JSONTag: "-",
-				}),
+		tableName := g.GenerateModel(
+			table,
+			gen.FieldType("deleted_at", "soft_delete.DeletedAt"),
+			gen.FieldGORMTag("deleted_at", func(tag field.GormTag) field.GormTag {
+				return tag.Set("softDelete", "milli")
+			}),
+			gen.FieldJSONTag("deleted_at", "-"),
 		)
 		g.ApplyBasic(tableName)
 	}
