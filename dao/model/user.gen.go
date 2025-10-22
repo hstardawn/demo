@@ -4,15 +4,21 @@
 
 package model
 
+import (
+	"time"
+)
+
 const TableNameUser = "user"
 
 // User mapped from table <user>
 type User struct {
-	Username  string `gorm:"column:username;not null;comment:用户名" json:"username"` // 用户名
-	Password  string `gorm:"column:password;not null;comment:密码" json:"password"`  // 密码
-	Avatar    string `gorm:"column:avatar;not null;comment:头像" json:"avatar"`      // 头像
-	Name      string `gorm:"column:name;not null" json:"name"`
-	BaseModel `json:"-"`
+	ID        int64     `gorm:"column:id;primaryKey;autoIncrement:true;comment:自增ID" json:"id"` // 自增ID
+	Username  string    `gorm:"column:username;not null;comment:用户名" json:"username"`           // 用户名
+	Password  string    `gorm:"column:password;not null;comment:密码" json:"password"`            // 密码
+	Avatar    string    `gorm:"column:avatar;not null;comment:头像" json:"avatar"`                // 头像
+	Name      string    `gorm:"column:name;not null" json:"name"`
+	CreatedAt time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP(3);comment:创建时间" json:"created_at"` // 创建时间
+	UpdatedAt time.Time `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP(3);comment:修改时间" json:"updated_at"` // 修改时间
 }
 
 // TableName User's table name

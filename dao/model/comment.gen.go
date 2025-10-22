@@ -4,16 +4,24 @@
 
 package model
 
+import (
+	"time"
+
+	"gorm.io/plugin/soft_delete"
+)
+
 const TableNameComment = "comment"
 
 // Comment mapped from table <comment>
 type Comment struct {
-	PostID    int64  `gorm:"column:post_id;comment:帖子id" json:"post_id"`           // 帖子id
-	UserID    int64  `gorm:"column:user_id;not null;comment:评论者ID" json:"user_id"` // 评论者ID
-	Content   string `gorm:"column:content;not null;comment:评论内容" json:"content"`  // 评论内容
-	ParentID  int64  `gorm:"column:parent_id;comment:父评论ID" json:"parent_id"`      // 父评论ID
-	IsDeleted bool   `gorm:"column:is_deleted;not null" json:"is_deleted"`
-	BaseModel `json:"-"`
+	ID        int64                 `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	PostID    int64                 `gorm:"column:post_id;comment:帖子id" json:"post_id"`                                             // 帖子id
+	UserID    int64                 `gorm:"column:user_id;not null;comment:评论者ID" json:"user_id"`                                   // 评论者ID
+	Content   string                `gorm:"column:content;not null;comment:评论内容" json:"content"`                                    // 评论内容
+	ParentID  int64                 `gorm:"column:parent_id;comment:父评论ID" json:"parent_id"`                                        // 父评论ID
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;not null;comment:删除时间(软删除);softDelete:milli" json:"-"`                 // 删除时间(软删除)
+	CreatedAt time.Time             `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP(3);comment:创建时间" json:"created_at"` // 创建时间
+	Utime     int64                 `gorm:"column:utime;not null;comment:修改时间" json:"utime"`                                        // 修改时间
 }
 
 // TableName Comment's table name

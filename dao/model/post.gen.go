@@ -4,18 +4,26 @@
 
 package model
 
+import (
+	"time"
+
+	"gorm.io/plugin/soft_delete"
+)
+
 const TableNamePost = "post"
 
 // Post mapped from table <post>
 type Post struct {
-	UserID      int64  `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"` // 用户ID
-	Name        string `gorm:"column:name;not null;comment:昵称" json:"name"`         // 昵称
-	Content     string `gorm:"column:content;not null;comment:内容" json:"content"`   // 内容
-	IsDeleted   bool   `gorm:"column:is_deleted;not null" json:"is_deleted"`
-	ImageUrls   string `gorm:"column:image_urls;not null;comment:图片路径" json:"image_urls"`          // 图片路径
-	IsAnonymous bool   `gorm:"column:is_anonymous;not null;comment:匿名" json:"is_anonymous"`        // 匿名
-	IsVisible   bool   `gorm:"column:is_visible;not null;default:1;comment:可见性" json:"is_visible"` // 可见性
-	BaseModel   `json:"-"`
+	ID          int64                 `gorm:"column:id;primaryKey;autoIncrement:true;comment:帖子ID" json:"id"`                         // 帖子ID
+	UserID      int64                 `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"`                                    // 用户ID
+	Name        string                `gorm:"column:name;not null;comment:昵称" json:"name"`                                            // 昵称
+	Content     string                `gorm:"column:content;not null;comment:内容" json:"content"`                                      // 内容
+	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;not null;comment:删除时间(软删除);softDelete:milli" json:"-"`                 // 删除时间(软删除)
+	ImageUrls   string                `gorm:"column:image_urls;not null;comment:图片路径" json:"image_urls"`                              // 图片路径
+	CreatedAt   time.Time             `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP(3);comment:创建时间" json:"created_at"` // 创建时间
+	UpdatedAt   time.Time             `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP(3);comment:修改时间" json:"updated_at"` // 修改时间
+	IsAnonymous bool                  `gorm:"column:is_anonymous;not null;comment:匿名" json:"is_anonymous"`                            // 匿名
+	IsVisible   bool                  `gorm:"column:is_visible;not null;default:1;comment:可见性" json:"is_visible"`                     // 可见性
 }
 
 // TableName Post's table name
