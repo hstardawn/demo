@@ -4,7 +4,9 @@ import (
 	"app/dao/model"
 	"app/dao/repo"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 	"github.com/zjutjh/mygo/foundation/reply"
+	"github.com/zjutjh/mygo/jwt"
 	"github.com/zjutjh/mygo/kit"
 	"github.com/zjutjh/mygo/nlog"
 	"github.com/zjutjh/mygo/swagger"
@@ -30,10 +32,10 @@ type PublishConfessionApi struct {
 
 type PublishConfessionApiRequest struct {
 	Body struct {
-		Content   string   `json:"content" binding:"required" desc:"帖子内容"`
-		Anonymous bool     `json:"anonymous" binding:"required" desc:"是否匿名"`
-		Visible   bool     `json:"visible" binding:"required" desc:"是否可见"`
-		Images    []string `json:"images" desc:"图片"`
+		Content     string   `json:"content" binding:"required" desc:"帖子内容"`
+		IsAnonymous *bool    `json:"is_anonymous" binding:"required" desc:"是否匿名"`
+		IsVisible   *bool    `json:"is_visible" binding:"required" desc:"是否可见"`
+		Images      []string `json:"images" desc:"图片"`
 	}
 }
 
@@ -42,18 +44,40 @@ type PublishConfessionApiResponse struct{}
 // Run Api业务逻辑执行点
 func (p *PublishConfessionApi) Run(ctx *gin.Context) kit.Code {
 	r := repo.NewPostRepo()
+	u := repo.NewUserRepo()
 	request := p.Request.Body
+	id, err := jwt.GetUid(ctx)
+	if err != nil {
+		return comm.CodeNotLoggedIn
+	}
 
-	if len(request.Images) != 0 && len(request.Images) > 9 {
+	uid := cast.ToInt64(id)
+	user, err := u.FindByID(ctx, uid)
+	if err != nil {
+		return comm.CodeDatabaseError
+	}
+	if len(request.Images) > 9 {
 		nlog.Pick().WithContext(ctx).Warn("上传图片数量过多")
 		return comm.CodeOutOfLimited
 	}
-	newPost := model.Post{
-		Content:   request.Content,
-		IsVisible: request.Visible,
-		ImageUrls: strings.Join(request.Images, ","),
+	anon := false
+	if request.IsAnonymous != nil && *request.IsAnonymous == true {
+		user.Name = "匿名用户"
+		anon = true
 	}
-	err := r.CreatePost(ctx, &newPost)
+	vis := true
+	if request.IsVisible != nil && *request.IsVisible == false {
+		vis = false
+	}
+	newPost := model.Post{
+		UserID:      uid,
+		Name:        user.Name,
+		Content:     request.Content,
+		IsVisible:   vis,
+		IsAnonymous: anon,
+		ImageUrls:   strings.Join(request.Images, ","),
+	}
+	err = r.CreatePost(ctx, &newPost)
 	if err != nil {
 		return comm.CodeDatabaseError
 	}

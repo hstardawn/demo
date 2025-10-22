@@ -1,4 +1,4 @@
-package user
+package block
 
 import (
 	"app/dao/repo"
@@ -30,10 +30,7 @@ type GetBlockedApi struct {
 }
 
 type GetBlockedApiRequest struct {
-	Query struct {
-		PageSize int `form:"page_size" binding:"required" desc:"最大容量"`
-		PageNum  int `form:"page_num" binding:"required" desc:"页码数目"`
-	}
+	Query struct{}
 }
 
 type BlockList struct {
@@ -47,14 +44,13 @@ type GetBlockedApiResponse struct {
 // Run Api业务逻辑执行点
 func (g *GetBlockedApi) Run(ctx *gin.Context) kit.Code {
 	r := repo.NewBlockRepo()
-	request := g.Request.Query
 	id, err := jwt.GetUid(ctx)
 	if err != nil {
 		return comm.CodeNotLoggedIn
 	}
 
 	uid := cast.ToInt64(id)
-	list, total, err := r.GetBlockedList(ctx, uid, request.PageNum, request.PageSize)
+	list, err := r.GetBlockedList(ctx, uid)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("获取拉黑列表失败")
 		return comm.CodeListError
@@ -67,8 +63,7 @@ func (g *GetBlockedApi) Run(ctx *gin.Context) kit.Code {
 		})
 	}
 	g.Response = GetBlockedApiResponse{
-		Total: total,
-		List:  respList,
+		List: respList,
 	}
 	return comm.CodeOK
 }

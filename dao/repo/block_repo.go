@@ -61,28 +61,17 @@ func (r *BlockRepo) IsBlocked(ctx context.Context, userID, blockedID int64) (boo
 	return count > 0, err
 }
 
-func (r *BlockRepo) GetBlockedList(ctx context.Context, userID int64, pageNum, pageSize int) ([]*model.Block, int64, error) {
+func (r *BlockRepo) GetBlockedList(ctx context.Context, userID int64) ([]*model.Block, error) {
 	db := query.Use(ndb.Pick()).Block
-	offset := (pageNum - 1) * pageSize
 
-	// 查询总数
-	total, err := db.WithContext(ctx).
-		Where(db.UserID.Eq(userID), db.Status.Is(true)).
-		Count()
-	if err != nil {
-		return nil, 0, err
-	}
-
-	// 查询分页数据
+	// 查询该用户所有已屏蔽的记录
 	list, err := db.WithContext(ctx).
 		Where(db.UserID.Eq(userID), db.Status.Is(true)).
-		Order(db.CreatedAt.Desc()). // 按创建时间倒序，可调整
-		Limit(pageSize).
-		Offset(offset).
+		Order(db.CreatedAt.Desc()).
 		Find()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	return list, total, nil
+	return list, nil
 }

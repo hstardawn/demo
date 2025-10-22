@@ -1,6 +1,7 @@
 package register
 
 import (
+	"app/api/block"
 	"app/api/confession"
 	"app/api/user"
 	"github.com/zjutjh/mygo/jwt/middleware"
@@ -27,14 +28,22 @@ func Route(router *gin.Engine) {
 			userGroup.POST("/register", user.RegisterHandler())
 			userGroup.POST("/login", user.LoginHandler())
 			userGroup.PUT("/update", middleware.Auth(true), user.UpdateHandler())
-			userGroup.POST("/block", middleware.Auth(true), user.BlockHandler())
-			userGroup.POST("/unblock", middleware.Auth(true), user.UnblockHandler())
-			userGroup.POST("/list_block", middleware.Auth(true), user.GetBlockedHandler())
 		}
 
 		postGroup := r.Group("/post", middleware.Auth(true))
 		{
 			postGroup.POST("/publish_confession", confession.PublishConfessionHandler())
+			postGroup.POST("/update_confession", confession.UpdateConfessionHandler())
+			postGroup.GET("/all_list", confession.GetConfessionHandler())
+			postGroup.GET("/my_list", confession.GetMyConfessionsHandler())
+			postGroup.DELETE("/delete_post", confession.DeleteConfessionHandler())
+		}
+
+		blockGroup := r.Group("/block", middleware.Auth(true))
+		{
+			blockGroup.POST("/block", middleware.Auth(true), block.BlockHandler())
+			blockGroup.POST("/unblock", middleware.Auth(true), block.UnblockHandler())
+			blockGroup.POST("/list_block", middleware.Auth(true), block.GetBlockedHandler())
 		}
 	}
 }

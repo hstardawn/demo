@@ -1,4 +1,4 @@
-package user
+package block
 
 import (
 	"app/dao/repo"
