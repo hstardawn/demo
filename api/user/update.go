@@ -49,6 +49,7 @@ func (u *UpdateApi) Run(ctx *gin.Context) kit.Code {
 		return comm.CodeNotLoggedIn
 	}
 
+	// 查找用户
 	uid, err := strconv.ParseInt(id, 10, 64)
 	user, err := s.FindByID(ctx, uid)
 	if err != nil {

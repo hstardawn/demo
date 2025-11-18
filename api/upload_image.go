@@ -1,13 +1,14 @@
 package api
 
 import (
-	"app/service"
 	"github.com/gin-gonic/gin"
 	"github.com/zjutjh/mygo/foundation/reply"
 	"github.com/zjutjh/mygo/kit"
 	"github.com/zjutjh/mygo/nlog"
 	"github.com/zjutjh/mygo/swagger"
 	"mime/multipart"
+	"os"
+	"path/filepath"
 	"reflect"
 	"runtime"
 
@@ -46,11 +47,22 @@ func (u *UploadImageApi) Run(ctx *gin.Context) kit.Code {
 		return comm.CodeParameterInvalid
 	}
 
-	uploadedURL, err := service.SaveUploadedImage(ctx, file)
-	if err != nil {
+	savePath := "./static/uploads/" + filepath.Base(file.Filename)
+
+	// 创建目录
+	if err := os.MkdirAll("./static/uploads", os.ModePerm); err != nil {
+		nlog.Pick().WithContext(ctx).WithError(err).Warn("图片保存目录创建失败")
+		return comm.CodeSaveError
+	}
+
+	// 保存文件
+	if err := ctx.SaveUploadedFile(file, savePath); err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("图片保存失败")
 		return comm.CodeSaveError
 	}
+
+	// 返回相对路径
+	uploadedURL := "/static/uploads/" + file.Filename
 
 	u.Response = UploadImageApiResponse{
 		URL: uploadedURL,

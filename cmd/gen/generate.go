@@ -15,16 +15,14 @@ var tables = []string{
 	"user",
 	"block",
 	"comment",
-	"post",
+	"confession",
 }
 
 func main() {
 	command.Execute(
-		register.Boot,    // 应用引导注册器
-		register.Command, // 应用命令注册器
-		func(cmd *cobra.Command, args []string) error {
-			return nil
-		},
+		register.Boot,
+		func(c *cobra.Command) {},
+		func(cmd *cobra.Command, args []string) error { return nil },
 	)
 
 	g := gen.NewGenerator(gen.Config{
@@ -35,7 +33,7 @@ func main() {
 
 	m := map[string]func(columnType gorm.ColumnType) (dataType string){
 		"tinyint": func(columnType gorm.ColumnType) (dataType string) {
-			return "bool"
+			return "int8"
 		},
 	}
 	g.WithDataTypeMap(m)

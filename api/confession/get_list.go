@@ -18,27 +18,27 @@ import (
 	"app/comm"
 )
 
-// GetConfessionHandler API router注册点
-func GetConfessionHandler() gin.HandlerFunc {
-	api := GetConfessionApi{}
-	swagger.CM[runtime.FuncForPC(reflect.ValueOf(hfGetConfession).Pointer()).Name()] = api
-	return hfGetConfession
+// GetListHandler API router注册点
+func GetListHandler() gin.HandlerFunc {
+	api := GetListApi{}
+	swagger.CM[runtime.FuncForPC(reflect.ValueOf(hfGetList).Pointer()).Name()] = api
+	return hfGetList
 }
 
-type GetConfessionApi struct {
-	Info     struct{}                 `name:"获取表白" desc:"获取表白"`
-	Request  GetConfessionApiRequest  // API请求参数 (Uri/Header/Query/Body)
-	Response GetConfessionApiResponse // API响应数据 (Body中的Data部分)
+type GetListApi struct {
+	Info     struct{}           `name:"获取表白" desc:"获取表白"`
+	Request  GetListApiRequest  // API请求参数 (Uri/Header/Query/Body)
+	Response GetListApiResponse // API响应数据 (Body中的Data部分)
 }
 
-type GetConfessionApiRequest struct {
+type GetListApiRequest struct {
 	Query struct {
-		PageSize int `form:"page_size" binding:"required" desc:"页容量"`
-		PageNum  int `form:"page_num" binding:"required" desc:"当前页码"`
+		PageSize int `form:"page_size" binding:"required" validate:"max=10, min=1" desc:"页容量"`
+		PageNum  int `form:"page_num" binding:"required" validate:"max=100, min=1" desc:"当前页码"`
 	}
 }
 
-type AnswerPost struct {
+type AnswerConfession struct {
 	Id        int64     `json:"id"`
 	UserId    int64     `json:"user_id"`
 	Name      string    `json:"name"`
@@ -46,15 +46,16 @@ type AnswerPost struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	ImageUrl  []string  `json:"image_url"`
+	IsBlocked bool      `json:"is_blocked"`
 }
-type GetConfessionApiResponse struct {
-	TotalCount int          `json:"total_count" desc:"帖子数目"`
-	Posts      []AnswerPost `json:"posts" desc:"帖子列表"`
+type GetListApiResponse struct {
+	TotalCount  int64              `json:"total_count" desc:"帖子数目"`
+	Confessions []AnswerConfession `json:"posts" desc:"帖子列表"`
 }
 
 // Run Api业务逻辑执行点
-func (g *GetConfessionApi) Run(ctx *gin.Context) kit.Code {
-	p := repo.NewPostRepo()
+func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
+	p := repo.NewConfessionRepo()
 	b := repo.NewBlockRepo()
 	request := g.Request.Query
 	id, err := jwt.GetUid(ctx)
@@ -62,29 +63,29 @@ func (g *GetConfessionApi) Run(ctx *gin.Context) kit.Code {
 		return comm.CodeNotLoggedIn
 	}
 
+	// 查找用户
 	uid := cast.ToInt64(id)
-	list, _, err := p.GetAllPosts(ctx, request.PageNum, request.PageSize)
+	list, _, err := p.GetAllConfessions(ctx, request.PageNum, request.PageSize)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("获取表白列表失败")
 		return comm.CodeListError
 	}
 
-	blockList, err := b.GetBlockedList(ctx, uid)
+	// 获取拉黑关系
+	blockList, total, err := b.GetBlockedList(ctx, uid, request.PageNum, request.PageSize)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("获取拉黑列表失败")
-		return comm.CodeListError
+		return comm.CodeDatabaseError
 	}
 	blockedIDs := make(map[int64]bool)
 	for _, blk := range blockList {
 		blockedIDs[blk.BlockedID] = true
 	}
 
-	filteredPosts := make([]AnswerPost, 0)
+	filteredConfessions := make([]AnswerConfession, 0)
 	for _, post := range list {
-		if blockedIDs[post.UserID] {
-			continue
-		}
-		newPost := AnswerPost{
+		isBlocked := blockedIDs[uid]
+		newConfession := AnswerConfession{
 			Id:        post.ID,
 			UserId:    post.UserID,
 			Name:      post.Name,
@@ -92,19 +93,20 @@ func (g *GetConfessionApi) Run(ctx *gin.Context) kit.Code {
 			CreatedAt: post.CreatedAt,
 			UpdatedAt: post.UpdatedAt,
 			ImageUrl:  strings.Split(post.ImageUrls, ","),
+			IsBlocked: isBlocked,
 		}
-		filteredPosts = append(filteredPosts, newPost)
+		filteredConfessions = append(filteredConfessions, newConfession)
 	}
 
-	g.Response = GetConfessionApiResponse{
-		TotalCount: len(filteredPosts),
-		Posts:      filteredPosts,
+	g.Response = GetListApiResponse{
+		TotalCount:  total,
+		Confessions: filteredConfessions,
 	}
 	return comm.CodeOK
 }
 
 // Init Api初始化 进行参数校验和绑定
-func (g *GetConfessionApi) Init(ctx *gin.Context) (err error) {
+func (g *GetListApi) Init(ctx *gin.Context) (err error) {
 	err = ctx.ShouldBindQuery(&g.Request.Query)
 	if err != nil {
 		return err
@@ -112,9 +114,9 @@ func (g *GetConfessionApi) Init(ctx *gin.Context) (err error) {
 	return err
 }
 
-// hfGetConfession API执行入口
-func hfGetConfession(ctx *gin.Context) {
-	api := &GetConfessionApi{}
+// hfGetList API执行入口
+func hfGetList(ctx *gin.Context) {
+	api := &GetListApi{}
 	err := api.Init(ctx)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("参数绑定校验错误")

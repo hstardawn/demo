@@ -33,8 +33,8 @@ type RegisterApi struct {
 type RegisterApiRequest struct {
 	Body struct {
 		Username string `json:"username" binding:"required" desc:"用户名"`
-		Password string `json:"password" binding:"required" desc:"密码"`
-		Name     string `json:"name" binding:"required" desc:"昵称"`
+		Password string `json:"password" binding:"required" validate:"max=12, min=6" desc:"密码"`
+		Name     string `json:"name" binding:"required" validate:"max=10, min=1" desc:"昵称"`
 		Avatar   string `json:"avatar" binding:"required" desc:"头像"`
 	}
 }
@@ -47,6 +47,8 @@ type RegisterApiResponse struct {
 func (r *RegisterApi) Run(ctx *gin.Context) kit.Code {
 	u := repo.NewUserRepo()
 	register := r.Request.Body
+
+	// 查找是否存在用户
 	user, err := u.FindByUsername(ctx, register.Username)
 	if err != nil {
 		return comm.CodeSaveError
@@ -58,23 +60,27 @@ func (r *RegisterApi) Run(ctx *gin.Context) kit.Code {
 	if err != nil {
 		return comm.CodeHashError
 	}
+
+	// 创建用户
 	newUser := model.User{
 		Username: register.Username,
 		Password: password,
 		Avatar:   register.Avatar,
 		Name:     register.Name,
 	}
-
 	err = u.CreatUser(ctx, &newUser)
 	if err != nil {
 		return comm.CodeDatabaseError
 	}
+
+	// 生成token
 	token, err := jwt.Pick().GenerateToken(strconv.FormatInt(newUser.ID, 10))
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("token生成失败")
 		return comm.CodeMiddlewareServiceError
 	}
 	r.Response.Token = token
+
 	return comm.CodeOK
 }
 

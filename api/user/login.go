@@ -32,7 +32,7 @@ type LoginApi struct {
 type LoginApiRequest struct {
 	Body struct {
 		Username string `json:"username" binding:"required" desc:"用户名"`
-		Password string `json:"password" binding:"required" desc:"密码"`
+		Password string `json:"password" binding:"required" validate:"max=12, min=6" desc:"密码"`
 	}
 }
 
@@ -45,6 +45,7 @@ func (l *LoginApi) Run(ctx *gin.Context) kit.Code {
 	u := repo.NewUserRepo()
 	loginRequest := l.Request.Body
 
+	// 查找用户
 	user, err := u.FindByUsername(ctx, loginRequest.Username)
 	if err != nil {
 		return comm.CodeDatabaseError
@@ -52,15 +53,20 @@ func (l *LoginApi) Run(ctx *gin.Context) kit.Code {
 	if user == nil {
 		return comm.CodeUserNotFound
 	}
+
+	// 校对密码
 	if !comm.CheckPassword(user.Password, loginRequest.Password) {
 		return comm.CodePasswordError
 	}
+
+	// 生成token
 	token, err := jwt.Pick().GenerateToken(strconv.FormatInt(user.ID, 10))
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("token生成失败")
 		return comm.CodeMiddlewareServiceError
 	}
 	l.Response.Token = token
+
 	return comm.CodeOK
 }
 

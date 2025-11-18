@@ -46,13 +46,14 @@ func (u *UnblockApi) Run(ctx *gin.Context) kit.Code {
 		return comm.CodeNotLoggedIn
 	}
 
+	// 解除拉黑
 	uid := cast.ToInt64(id)
-	isBlocked, err := r.IsBlocked(ctx, uid, request.BlockedId)
+	record, err := r.IsBlocked(ctx, uid, request.BlockedId)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("查询拉黑关系失败")
 		return comm.CodeDatabaseError
 	}
-	if !isBlocked {
+	if record == nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("未拉黑，无法解除拉黑")
 		return comm.CodeBlockNotExisted
 	}

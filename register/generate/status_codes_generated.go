@@ -24,7 +24,7 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api.hfHealth", statusCodes)
 	}
 
-	// api/upload_image.go:73
+	// api/upload_image.go:85
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
@@ -34,32 +34,30 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api.hfUploadImage", statusCodes)
 	}
 
-	// api/block/block.go:80
+	// api/block/create.go:82
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
+			comm.CodeDatabaseError,
 			comm.CodeNotLoggedIn,
 			comm.CodeParameterInvalid,
-			comm.CodeBlockExisted,
-			comm.CodeBlockNotExisted,
 			comm.CodeSearchError,
-			comm.CodeBlockError,
 		}
-		swagger.MustRegisterBusinessStatusCodes("app/api/block.hfBlock", statusCodes)
+		swagger.MustRegisterBusinessStatusCodes("app/api/block.hfCreate", statusCodes)
 	}
 
-	// api/block/get_blocked.go:81
+	// api/block/get_list.go:86
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
+			comm.CodeDatabaseError,
 			comm.CodeNotLoggedIn,
 			comm.CodeParameterInvalid,
-			comm.CodeListError,
 		}
-		swagger.MustRegisterBusinessStatusCodes("app/api/block.hfGetBlocked", statusCodes)
+		swagger.MustRegisterBusinessStatusCodes("app/api/block.hfGetList", statusCodes)
 	}
 
-	// api/block/unblock.go:77
+	// api/block/unblock.go:78
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
@@ -71,67 +69,6 @@ func init() {
 			comm.CodeUnblockError,
 		}
 		swagger.MustRegisterBusinessStatusCodes("app/api/block.hfUnblock", statusCodes)
-	}
-
-	// api/confession/delete_confession.go:77
-	{
-		statusCodes := []kit.Code{
-			comm.CodeOK,
-			comm.CodeDatabaseError,
-			comm.CodeNotLoggedIn,
-			comm.CodePermissionDenied,
-			comm.CodeParameterInvalid,
-			comm.CodePostNotFound,
-		}
-		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfDeleteConfession", statusCodes)
-	}
-
-	// api/confession/get_confession.go:116
-	{
-		statusCodes := []kit.Code{
-			comm.CodeOK,
-			comm.CodeNotLoggedIn,
-			comm.CodeParameterInvalid,
-			comm.CodeListError,
-		}
-		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfGetConfession", statusCodes)
-	}
-
-	// api/confession/get_myConfessions.go:91
-	{
-		statusCodes := []kit.Code{
-			comm.CodeOK,
-			comm.CodeNotLoggedIn,
-			comm.CodeParameterInvalid,
-			comm.CodeListError,
-		}
-		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfGetMyConfessions", statusCodes)
-	}
-
-	// api/confession/publish_confession.go:97
-	{
-		statusCodes := []kit.Code{
-			comm.CodeOK,
-			comm.CodeDatabaseError,
-			comm.CodeNotLoggedIn,
-			comm.CodeParameterInvalid,
-			comm.CodeOutOfLimited,
-		}
-		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfPublishConfession", statusCodes)
-	}
-
-	// api/confession/update_confession.go:112
-	{
-		statusCodes := []kit.Code{
-			comm.CodeOK,
-			comm.CodeDatabaseError,
-			comm.CodeNotLoggedIn,
-			comm.CodeParameterInvalid,
-			comm.CodeUserNotFound,
-			comm.CodeOutOfLimited,
-			comm.CodePostNotFound,
-		}
-		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfUpdateConfession", statusCodes)
 	}
 
 	// api/user/login.go:77

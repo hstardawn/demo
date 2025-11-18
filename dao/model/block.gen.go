@@ -15,9 +15,9 @@ type Block struct {
 	ID        int64     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
 	UserID    int64     `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"`                                    // 用户ID
 	BlockedID int64     `gorm:"column:blocked_id;not null;comment:被拉黑的用户ID" json:"blocked_id"`                          // 被拉黑的用户ID
+	Status    int8      `gorm:"column:status;not null;default:1;comment:拉黑状态" json:"status"`                            // 拉黑状态
 	CreatedAt time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP(3);comment:创建时间" json:"created_at"` // 创建时间
 	UpdatedAt time.Time `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP(3);comment:修改时间" json:"updated_at"` // 修改时间
-	Status    bool      `gorm:"column:status;not null;default:1;comment:拉黑状态" json:"status"`                            // 拉黑状态
 }
 
 // TableName Block's table name

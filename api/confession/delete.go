@@ -16,30 +16,30 @@ import (
 	"app/comm"
 )
 
-// DeleteConfessionHandler API router注册点
-func DeleteConfessionHandler() gin.HandlerFunc {
-	api := DeleteConfessionApi{}
-	swagger.CM[runtime.FuncForPC(reflect.ValueOf(hfDeleteConfession).Pointer()).Name()] = api
-	return hfDeleteConfession
+// DeleteHandler API router注册点
+func DeleteHandler() gin.HandlerFunc {
+	api := DeleteApi{}
+	swagger.CM[runtime.FuncForPC(reflect.ValueOf(hfDelete).Pointer()).Name()] = api
+	return hfDelete
 }
 
-type DeleteConfessionApi struct {
-	Info     struct{}                    `name:"删除表白" desc:"删除表白"`
-	Request  DeleteConfessionApiRequest  // API请求参数 (Uri/Header/Query/Body)
-	Response DeleteConfessionApiResponse // API响应数据 (Body中的Data部分)
+type DeleteApi struct {
+	Info     struct{}          `name:"删除表白" desc:"删除表白"`
+	Request  DeleteApiRequest  // API请求参数 (Uri/Header/Query/Body)
+	Response DeleteApiResponse // API响应数据 (Body中的Data部分)
 }
 
-type DeleteConfessionApiRequest struct {
+type DeleteApiRequest struct {
 	Query struct {
-		PostId int64 `form:"post_id" binding:"required" desc:"删除帖子编号"`
+		ConfessionID int64 `form:"post_id" binding:"required" desc:"删除帖子编号"`
 	}
 }
 
-type DeleteConfessionApiResponse struct{}
+type DeleteApiResponse struct{}
 
 // Run Api业务逻辑执行点
-func (d *DeleteConfessionApi) Run(ctx *gin.Context) kit.Code {
-	r := repo.NewPostRepo()
+func (d *DeleteApi) Run(ctx *gin.Context) kit.Code {
+	r := repo.NewConfessionRepo()
 	request := d.Request.Query
 	id, err := jwt.GetUid(ctx)
 	if err != nil {
@@ -47,16 +47,16 @@ func (d *DeleteConfessionApi) Run(ctx *gin.Context) kit.Code {
 	}
 
 	uid := cast.ToInt64(id)
-	record, err := r.FindPostByID(ctx, request.PostId)
+	record, err := r.FindConfessionByID(ctx, request.ConfessionID)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("查找帖子失败")
-		return comm.CodePostNotFound
+		return comm.CodeDatabaseError
 	}
 	if record.UserID != uid {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("非该帖子主人")
 		return comm.CodePermissionDenied
 	}
-	err = r.DeletePost(ctx, request.PostId)
+	err = r.DeleteConfession(ctx, request.ConfessionID)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("删除失败")
 		return comm.CodeDatabaseError
@@ -65,7 +65,7 @@ func (d *DeleteConfessionApi) Run(ctx *gin.Context) kit.Code {
 }
 
 // Init Api初始化 进行参数校验和绑定
-func (d *DeleteConfessionApi) Init(ctx *gin.Context) (err error) {
+func (d *DeleteApi) Init(ctx *gin.Context) (err error) {
 	err = ctx.ShouldBindQuery(&d.Request.Query)
 	if err != nil {
 		return err
@@ -73,9 +73,9 @@ func (d *DeleteConfessionApi) Init(ctx *gin.Context) (err error) {
 	return err
 }
 
-// hfDeleteConfession API执行入口
-func hfDeleteConfession(ctx *gin.Context) {
-	api := &DeleteConfessionApi{}
+// hfDelete API执行入口
+func hfDelete(ctx *gin.Context) {
+	api := &DeleteApi{}
 	err := api.Init(ctx)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("参数绑定校验错误")
