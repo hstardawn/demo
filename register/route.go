@@ -2,6 +2,7 @@ package register
 
 import (
 	"app/api/block"
+	"app/api/comment"
 	"app/api/confession"
 
 	"app/api/user"
@@ -45,6 +46,13 @@ func Route(router *gin.Engine) {
 			blockGroup.POST("", block.CreateHandler())
 			blockGroup.POST("/unblock", block.UnblockHandler())
 			blockGroup.POST("/list_block", block.GetListHandler())
+		}
+
+		commentGroup := r.Group("/comment", middleware.Auth(true))
+		{
+			commentGroup.POST("/create", comment.CreateHandler())
+			commentGroup.POST("/get_list", comment.GetListHandler())
+			commentGroup.DELETE("/delete", comment.DeleteHandler())
 		}
 	}
 }

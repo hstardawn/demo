@@ -29,13 +29,13 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 	tableName := _comment.commentDo.TableName()
 	_comment.ALL = field.NewAsterisk(tableName)
 	_comment.ID = field.NewInt64(tableName, "id")
-	_comment.PostID = field.NewInt64(tableName, "post_id")
+	_comment.ConfessionID = field.NewInt64(tableName, "confession_id")
 	_comment.UserID = field.NewInt64(tableName, "user_id")
 	_comment.Content = field.NewString(tableName, "content")
 	_comment.ParentID = field.NewInt64(tableName, "parent_id")
-	_comment.DeletedAt = field.NewField(tableName, "deleted_at")
 	_comment.CreatedAt = field.NewTime(tableName, "created_at")
-	_comment.Utime = field.NewInt64(tableName, "utime")
+	_comment.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_comment.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_comment.fillFieldMap()
 
@@ -45,15 +45,15 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 type comment struct {
 	commentDo commentDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	PostID    field.Int64  // 帖子id
-	UserID    field.Int64  // 评论者ID
-	Content   field.String // 评论内容
-	ParentID  field.Int64  // 父评论ID
-	DeletedAt field.Field  // 删除时间(软删除)
-	CreatedAt field.Time   // 创建时间
-	Utime     field.Int64  // 修改时间
+	ALL          field.Asterisk
+	ID           field.Int64
+	ConfessionID field.Int64  // 表白帖子id
+	UserID       field.Int64  // 评论者ID
+	Content      field.String // 评论内容
+	ParentID     field.Int64  // 父评论ID
+	CreatedAt    field.Time   // 创建时间
+	UpdatedAt    field.Time   // 更新时间
+	DeletedAt    field.Field  // 删除时间(软删除)
 
 	fieldMap map[string]field.Expr
 }
@@ -71,13 +71,13 @@ func (c comment) As(alias string) *comment {
 func (c *comment) updateTableName(table string) *comment {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
-	c.PostID = field.NewInt64(table, "post_id")
+	c.ConfessionID = field.NewInt64(table, "confession_id")
 	c.UserID = field.NewInt64(table, "user_id")
 	c.Content = field.NewString(table, "content")
 	c.ParentID = field.NewInt64(table, "parent_id")
-	c.DeletedAt = field.NewField(table, "deleted_at")
 	c.CreatedAt = field.NewTime(table, "created_at")
-	c.Utime = field.NewInt64(table, "utime")
+	c.UpdatedAt = field.NewTime(table, "updated_at")
+	c.DeletedAt = field.NewField(table, "deleted_at")
 
 	c.fillFieldMap()
 
@@ -104,13 +104,13 @@ func (c *comment) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (c *comment) fillFieldMap() {
 	c.fieldMap = make(map[string]field.Expr, 8)
 	c.fieldMap["id"] = c.ID
-	c.fieldMap["post_id"] = c.PostID
+	c.fieldMap["confession_id"] = c.ConfessionID
 	c.fieldMap["user_id"] = c.UserID
 	c.fieldMap["content"] = c.Content
 	c.fieldMap["parent_id"] = c.ParentID
-	c.fieldMap["deleted_at"] = c.DeletedAt
 	c.fieldMap["created_at"] = c.CreatedAt
-	c.fieldMap["utime"] = c.Utime
+	c.fieldMap["updated_at"] = c.UpdatedAt
+	c.fieldMap["deleted_at"] = c.DeletedAt
 }
 
 func (c comment) clone(db *gorm.DB) comment {

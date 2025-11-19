@@ -59,3 +59,19 @@ func (r *UserRepo) UpdateUser(ctx context.Context, user *model.User) error {
 	}
 	return nil
 }
+
+func (r *UserRepo) FindByIDs(ctx context.Context, ids []int64) ([]*model.User, error) {
+	do := r.query.User
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	var users []*model.User
+	users, err := do.WithContext(ctx).
+		Where(do.ID.In(ids...)).
+		Order(do.ID).
+		Find()
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}

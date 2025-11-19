@@ -41,4 +41,5 @@ var (
 	CodeBlockError         = kit.NewCode(30012, "拉黑失败")
 	CodeListError          = kit.NewCode(30013, "获取列表失败")
 	CodeConfessionNotFound = kit.NewCode(30014, "帖子不存在")
+	CodeCommentNotFound    = kit.NewCode(30015, "评论不存在")
 )
