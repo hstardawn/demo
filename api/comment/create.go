@@ -62,6 +62,18 @@ func (c *CreateApi) Run(ctx *gin.Context) kit.Code {
 		return comm.CodeConfessionNotFound
 	}
 
+	// 查找父评论是否存在
+	if *request.ParentID != 0 {
+		record, err := r.GetCommentByID(ctx, *request.ParentID)
+		if err != nil {
+			return comm.CodeDatabaseError
+		}
+		if record == nil {
+			nlog.Pick().WithContext(ctx).WithError(err).Warn("父评论不存在")
+			return comm.CodeCommentNotFound
+		}
+	}
+
 	// 创建评论
 	newComment := &model.Comment{
 		Content:      request.Content,
