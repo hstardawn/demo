@@ -63,15 +63,21 @@ type UserVO struct {
 func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
 	r := repo.NewCommentRepo()
 	u := repo.NewUserRepo()
+	c := repo.NewConfessionRepo()
 	req := g.Request.Body
 
-	// 1. 鉴权
+	// 鉴权
 	_, err := jwt.GetUid(ctx)
 	if err != nil {
 		return comm.CodeNotLoggedIn
 	}
 
-	// 2. 获取顶级评论（按分页）
+	// 获取帖子
+	_, err = c.FindConfessionByID(ctx, req.ConfessionID)
+	if err != nil {
+		return comm.CodeDatabaseError
+	}
+	// 获取顶级评论（按分页）
 	tops, err := r.ListTopLevelByPost(ctx, req.ConfessionID, req.PageNum, req.PageSize)
 	if err != nil {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("获取顶级评论失败")
@@ -82,7 +88,7 @@ func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
 		return comm.CodeOK
 	}
 
-	// 3. 收集顶级评论ID，批量获取子评论
+	// 收集顶级评论ID，批量获取子评论
 	var topIDs []int64
 	for _, top := range tops {
 		topIDs = append(topIDs, top.ID)

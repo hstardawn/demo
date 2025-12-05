@@ -6,9 +6,11 @@ CREATE TABLE `confession` (
                               `image_urls` varchar(500) NOT NULL COMMENT '图片路径',
                               `is_anonymous` tinyint(1) NOT NULL DEFAULT '0' COMMENT '匿名',
                               `is_visible` tinyint(1) NOT NULL DEFAULT '1' COMMENT '可见性',
+                              `status` int NOT NULL COMMENT '0:待发布, 1:已发布',
+                              `schedule_time` timestamp(3) NOT NULL COMMENT '预期发布时间',
                               `created_at` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '创建时间',
                               `updated_at` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '修改时间',
                               `deleted_at` bigint NOT NULL DEFAULT '0' COMMENT '删除时间(软删除)',
                               PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 

@@ -35,6 +35,8 @@ func newConfession(db *gorm.DB, opts ...gen.DOOption) confession {
 	_confession.ImageUrls = field.NewString(tableName, "image_urls")
 	_confession.IsAnonymous = field.NewInt8(tableName, "is_anonymous")
 	_confession.IsVisible = field.NewInt8(tableName, "is_visible")
+	_confession.Status = field.NewInt32(tableName, "status")
+	_confession.ScheduleTime = field.NewTime(tableName, "schedule_time")
 	_confession.CreatedAt = field.NewTime(tableName, "created_at")
 	_confession.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_confession.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -47,17 +49,19 @@ func newConfession(db *gorm.DB, opts ...gen.DOOption) confession {
 type confession struct {
 	confessionDo confessionDo
 
-	ALL         field.Asterisk
-	ID          field.Int64  // 帖子ID
-	UserID      field.Int64  // 用户ID
-	Name        field.String // 昵称
-	Content     field.String // 内容
-	ImageUrls   field.String // 图片路径
-	IsAnonymous field.Int8   // 匿名
-	IsVisible   field.Int8   // 可见性
-	CreatedAt   field.Time   // 创建时间
-	UpdatedAt   field.Time   // 修改时间
-	DeletedAt   field.Field  // 删除时间(软删除)
+	ALL          field.Asterisk
+	ID           field.Int64  // 帖子ID
+	UserID       field.Int64  // 用户ID
+	Name         field.String // 昵称
+	Content      field.String // 内容
+	ImageUrls    field.String // 图片路径
+	IsAnonymous  field.Int8   // 匿名
+	IsVisible    field.Int8   // 可见性
+	Status       field.Int32  // 0:待发布, 1:已发布
+	ScheduleTime field.Time   // 预期发布时间
+	CreatedAt    field.Time   // 创建时间
+	UpdatedAt    field.Time   // 修改时间
+	DeletedAt    field.Field  // 删除时间(软删除)
 
 	fieldMap map[string]field.Expr
 }
@@ -81,6 +85,8 @@ func (c *confession) updateTableName(table string) *confession {
 	c.ImageUrls = field.NewString(table, "image_urls")
 	c.IsAnonymous = field.NewInt8(table, "is_anonymous")
 	c.IsVisible = field.NewInt8(table, "is_visible")
+	c.Status = field.NewInt32(table, "status")
+	c.ScheduleTime = field.NewTime(table, "schedule_time")
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.DeletedAt = field.NewField(table, "deleted_at")
@@ -110,7 +116,7 @@ func (c *confession) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *confession) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 10)
+	c.fieldMap = make(map[string]field.Expr, 12)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["user_id"] = c.UserID
 	c.fieldMap["name"] = c.Name
@@ -118,6 +124,8 @@ func (c *confession) fillFieldMap() {
 	c.fieldMap["image_urls"] = c.ImageUrls
 	c.fieldMap["is_anonymous"] = c.IsAnonymous
 	c.fieldMap["is_visible"] = c.IsVisible
+	c.fieldMap["status"] = c.Status
+	c.fieldMap["schedule_time"] = c.ScheduleTime
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["deleted_at"] = c.DeletedAt

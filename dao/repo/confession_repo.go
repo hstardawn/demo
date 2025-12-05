@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/zjutjh/mygo/ndb"
 	"gorm.io/gorm"
+	"time"
 )
 
 type ConfessionRepo struct {
@@ -29,6 +30,8 @@ func (r *ConfessionRepo) CreateConfession(ctx context.Context, confession *model
 			db.ImageUrls,
 			db.UserID,
 			db.Name,
+			db.Status,
+			db.ScheduleTime,
 		).
 		Create(confession)
 	if err != nil {
@@ -48,7 +51,7 @@ func (r *ConfessionRepo) UpdateConfession(ctx context.Context, confessionID int6
 
 func (r *ConfessionRepo) FindConfessionByID(ctx context.Context, id int64) (confession *model.Confession, err error) {
 	db := r.query.Confession
-	record, err := db.WithContext(ctx).Where(db.ID.Eq(id)).First()
+	record, err := db.WithContext(ctx).Where(db.ID.Eq(id), db.Status.Eq(1)).First()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
@@ -62,7 +65,7 @@ func (r *ConfessionRepo) GetAllConfessions(ctx context.Context, pageNum, pageSiz
 
 	// 查询分页数据
 	list, err := db.WithContext(ctx).
-		Where(db.IsVisible.Eq(1)).
+		Where(db.IsVisible.Eq(1), db.Status.Eq(1)).
 		Order(db.CreatedAt.Desc()). // 按发布时间倒序
 		Limit(pageSize).
 		Offset(offset).
@@ -112,6 +115,30 @@ func (r *ConfessionRepo) GetMyConfessions(ctx context.Context, pageNum, pageSize
 func (r *ConfessionRepo) DeleteConfession(ctx context.Context, id int64) (err error) {
 	db := r.query.Confession
 	_, err = db.WithContext(ctx).Where(db.ID.Eq(id)).Delete()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *ConfessionRepo) FindDueToPublish(ctx context.Context) ([]*model.Confession, error) {
+	list := make([]*model.Confession, 0)
+	db := r.query.Confession
+	now := time.Now()
+
+	// 查询条件
+	list, err := db.WithContext(ctx).
+		Where(db.Status.Eq(0), db.ScheduleTime.Lte(now)).
+		Find()
+	if err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (r *ConfessionRepo) PublishDue(ctx context.Context, id int64) error {
+	db := r.query.Confession
+	_, err := db.WithContext(ctx).Where(db.ID.Eq(id), db.Status.Eq(0)).Update(db.Status, 1)
 	if err != nil {
 		return err
 	}

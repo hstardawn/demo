@@ -34,7 +34,7 @@ func main() {
 			}()
 
 			// 如有需要 可以额外启动其他服务
-
+			crontab.Run(register.Cron)
 			wg.Wait()
 			return nil
 		},

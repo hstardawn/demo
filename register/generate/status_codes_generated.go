@@ -71,7 +71,7 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api/block.hfUnblock", statusCodes)
 	}
 
-	// api/comment/create.go:90
+	// api/comment/create.go:102
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
@@ -79,6 +79,7 @@ func init() {
 			comm.CodeNotLoggedIn,
 			comm.CodeParameterInvalid,
 			comm.CodeConfessionNotFound,
+			comm.CodeCommentNotFound,
 		}
 		swagger.MustRegisterBusinessStatusCodes("app/api/comment.hfCreate", statusCodes)
 	}
@@ -96,7 +97,7 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api/comment.hfDelete", statusCodes)
 	}
 
-	// api/comment/get_list.go:212
+	// api/comment/get_list.go:189
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
@@ -107,7 +108,7 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api/comment.hfGetList", statusCodes)
 	}
 
-	// api/confession/create.go:100
+	// api/confession/create.go:110
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,

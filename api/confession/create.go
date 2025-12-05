@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/zjutjh/mygo/foundation/reply"
@@ -33,10 +34,11 @@ type CreateApi struct {
 
 type CreateApiRequest struct {
 	Body struct {
-		Content     string   `json:"content" binding:"required" validate:"max=500, min=1" desc:"帖子内容"`
-		IsAnonymous *int8    `json:"is_anonymous" binding:"required" desc:"是否匿名"`
-		IsVisible   *int8    `json:"is_visible" binding:"required" desc:"是否可见"`
-		Images      []string `json:"images" desc:"图片"`
+		Content     string    `json:"content" binding:"required" validate:"max=500, min=1" desc:"帖子内容"`
+		IsAnonymous *int8     `json:"is_anonymous" binding:"required" desc:"是否匿名"`
+		IsVisible   *int8     `json:"is_visible" binding:"required" desc:"是否可见"`
+		Images      []string  `json:"images" desc:"图片"`
+		PublishTime time.Time `json:"publish_time" binding:"required" desc:"预期发布时间"`
 	}
 }
 
@@ -46,6 +48,7 @@ type CreateApiResponse struct{}
 func (c *CreateApi) Run(ctx *gin.Context) kit.Code {
 	r := repo.NewConfessionRepo()
 	u := repo.NewUserRepo()
+	now := time.Now()
 	request := c.Request.Body
 	id, err := jwt.GetUid(ctx)
 	if err != nil {
@@ -54,6 +57,11 @@ func (c *CreateApi) Run(ctx *gin.Context) kit.Code {
 	uid := cast.ToInt64(id)
 
 	// 发布表白
+	status := 0
+	if !request.PublishTime.After(now) {
+		status = 1
+		request.PublishTime = now
+	}
 	user, err := u.FindByID(ctx, uid)
 	if err != nil {
 		return comm.CodeDatabaseError
@@ -73,12 +81,14 @@ func (c *CreateApi) Run(ctx *gin.Context) kit.Code {
 	}
 
 	newPost := model.Confession{
-		UserID:      uid,
-		Name:        user.Name,
-		Content:     request.Content,
-		IsVisible:   int8(vis),
-		IsAnonymous: int8(anon),
-		ImageUrls:   strings.Join(request.Images, ","),
+		UserID:       uid,
+		Name:         user.Name,
+		Content:      request.Content,
+		IsVisible:    int8(vis),
+		IsAnonymous:  int8(anon),
+		ImageUrls:    strings.Join(request.Images, ","),
+		Status:       int32(status),
+		ScheduleTime: request.PublishTime,
 	}
 	err = r.CreateConfession(ctx, &newPost)
 	if err != nil {
