@@ -48,10 +48,11 @@ type AnswerConfession struct {
 	ImageUrl  []string  `json:"image_url"`
 	IsBlocked bool      `json:"is_blocked"`
 	LikeCount int64     `json:"like_count"` // 总赞数
-	IsLiked   bool      `json:"is_liked"`   // 我是否赞过
+	ViewCount int64     `json:"view_count"`
+	IsLiked   bool      `json:"is_liked"` // 我是否赞过
 }
 type GetListApiResponse struct {
-	TotalCount  int64              `json:"total_count" desc:"帖子数目"`
+	TotalCount  int                `json:"total_count" desc:"帖子数目"`
 	Confessions []AnswerConfession `json:"posts" desc:"帖子列表"`
 }
 
@@ -78,17 +79,6 @@ func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
 		confessionIDs = append(confessionIDs, v.ID)
 	}
 
-	// 获取拉黑关系
-	blockList, total, err := b.GetBlockedList(ctx, uid, request.PageNum, request.PageSize)
-	if err != nil {
-		nlog.Pick().WithContext(ctx).WithError(err).Warn("获取拉黑列表失败")
-		return comm.CodeDatabaseError
-	}
-	blockedIDs := make(map[int64]bool)
-	for _, blk := range blockList {
-		blockedIDs[blk.BlockedID] = true
-	}
-
 	// 批量去 Redis 查询点赞信息
 	likeMap, err := l.GetBatchLikeInfo(ctx, confessionIDs, uid)
 	if err != nil {
@@ -98,7 +88,11 @@ func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
 
 	filteredConfessions := make([]AnswerConfession, 0)
 	for _, item := range list {
-		isBlocked := blockedIDs[uid]
+		Block, err := b.IsBlocked(ctx, item.UserID, uid)
+		if err != nil {
+			return comm.CodeDatabaseError
+		}
+		isBlocked := cast.ToBool(Block.Status)
 		newConfession := AnswerConfession{
 			Id:        item.ID,
 			UserId:    item.UserID,
@@ -122,7 +116,7 @@ func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
 	}
 
 	g.Response = GetListApiResponse{
-		TotalCount:  total,
+		TotalCount:  len(filteredConfessions),
 		Confessions: filteredConfessions,
 	}
 	return comm.CodeOK

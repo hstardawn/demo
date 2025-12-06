@@ -2,6 +2,7 @@ package confession
 
 import (
 	"app/dao/repo"
+	"context"
 	"github.com/spf13/cast"
 	"github.com/zjutjh/mygo/jwt"
 	"reflect"
@@ -42,7 +43,7 @@ type LikeApiResponse struct{}
 func (l *LikeApi) Run(ctx *gin.Context) kit.Code {
 	req := l.Request.Query
 	r := repo.NewLikeRepo()
-	c := repo.NewConfessionRepo()
+	h := repo.NewHotRepo()
 
 	// 获取当前用户ID
 	id, err := jwt.GetUid(ctx)
@@ -51,16 +52,18 @@ func (l *LikeApi) Run(ctx *gin.Context) kit.Code {
 	}
 	uid := cast.ToInt64(id)
 
-	confession, err := c.FindConfessionByID(ctx, req.ConfessionID)
-	if err != nil {
-		return comm.CodeDatabaseError
-	}
-	nowStatus := cast.ToInt32(req.Action)
-	if nowStatus == confession.Status {
+	isLike, err := r.IsUserLiked(ctx, req.ConfessionID, uid)
+	nowStatus := cast.ToBool(req.Action)
+	if nowStatus == isLike {
 		return comm.CodeRepeatAction
 	}
 	err = r.LikeAction(ctx, req.ConfessionID, uid, req.Action)
 	if err != nil {
+		return comm.CodeDatabaseError
+	}
+	err = h.UpdateLikeScore(context.Background(), req.ConfessionID, req.Action)
+	if err != nil {
+		nlog.Pick().WithContext(ctx).WithError(err).Warn("更新热度失败")
 		return comm.CodeDatabaseError
 	}
 

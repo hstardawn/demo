@@ -84,3 +84,16 @@ func (r *LikeRepo) GetBatchLikeInfo(ctx context.Context, confessionIDs []int64, 
 
 	return resultMap, nil
 }
+
+// IsUserLiked 检查用户是否点过赞
+func (r *LikeRepo) IsUserLiked(ctx context.Context, confessionID, userID int64) (bool, error) {
+	rd := r.redis
+	key := fmt.Sprintf("like:confession:%d", confessionID)
+	return rd.SIsMember(ctx, key, userID).Result()
+}
+
+func (r *LikeRepo) GetLikeCount(ctx context.Context, confessionID int64) (int64, error) {
+	rd := r.redis
+	key := fmt.Sprintf("like:confession:%d", confessionID)
+	return rd.SCard(ctx, key).Result()
+}

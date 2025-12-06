@@ -54,9 +54,9 @@ redis:
 
 # 飞书告警配置
 feishu:
-  enable: false
-  notice_webhook: ""
-  notice_secret: ""
+  enable: yes
+  notice_webhook: "https://open.feishu.cn/open-apis/bot/v2/hook/9e86ff56-cd12-4419-9bc8-22bd19d7dd25"
+  notice_secret: "RAlIPWacPD3H5fnB5ADFre"
 
 jwt:
   secret: "1111"

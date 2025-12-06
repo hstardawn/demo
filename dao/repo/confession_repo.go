@@ -5,6 +5,7 @@ import (
 	"app/dao/query"
 	"context"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/zjutjh/mygo/ndb"
 	"gorm.io/gorm"
 	"time"
@@ -143,4 +144,17 @@ func (r *ConfessionRepo) PublishDue(ctx context.Context, id int64) error {
 		return err
 	}
 	return nil
+}
+
+func (r *ConfessionRepo) FindByIDs(ctx *gin.Context, ids []int64) ([]*model.Confession, error) {
+	db := r.query.Confession
+	list := make([]*model.Confession, 0)
+	for _, id := range ids {
+		confession, err := db.WithContext(ctx).Where(db.ID.Eq(id), db.Status.Eq(1)).First()
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, confession)
+	}
+	return list, nil
 }

@@ -47,7 +47,8 @@ type MyConfession struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	ImageUrl  []string  `json:"image_url"`
 	LikeCount int64     `json:"like_count"` // 总赞数
-	IsLiked   bool      `json:"is_liked"`   // 我是否赞过
+	ViewCount int64     `json:"view_count"`
+	IsLiked   bool      `json:"is_liked"` // 我是否赞过
 }
 type GetMyListApiResponse struct {
 	TotalCount int64          `json:"total_count" desc:"帖子数目"`

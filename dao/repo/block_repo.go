@@ -76,3 +76,27 @@ func (r *BlockRepo) GetBlockedList(ctx context.Context, userID int64, pageNum, p
 
 	return list, total, nil
 }
+
+func (r *BlockRepo) GetBlockStatusBatch(ctx context.Context, userIDs []int64, viewerID int64) (map[int64]bool, error) {
+	db := r.query.Block
+	type Result struct {
+		BlockedUserID int64 `gorm:"column:blocked_user_id"`
+	}
+
+	var results []Result
+	err := r.query.Block.WithContext(ctx).
+		Select(db.BlockedID).          // 使用字段，不是字符串
+		Where(db.UserID.Eq(viewerID)). // 类型安全的条件
+		Where(db.BlockedID.In(userIDs...)).
+		Scan(&results)
+
+	if err != nil {
+		return nil, err
+	}
+
+	blockMap := make(map[int64]bool)
+	for _, r := range results {
+		blockMap[r.BlockedUserID] = true
+	}
+	return blockMap, nil
+}

@@ -132,7 +132,29 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfDelete", statusCodes)
 	}
 
-	// api/confession/get_list.go:141
+	// api/confession/detail.go:141
+	{
+		statusCodes := []kit.Code{
+			comm.CodeOK,
+			comm.CodeDatabaseError,
+			comm.CodeNotLoggedIn,
+			comm.CodeParameterInvalid,
+			comm.CodeConfessionNotFound,
+		}
+		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfDetail", statusCodes)
+	}
+
+	// api/confession/get_hotList.go:128
+	{
+		statusCodes := []kit.Code{
+			comm.CodeOK,
+			comm.CodeDatabaseError,
+			comm.CodeParameterInvalid,
+		}
+		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfGetHotList", statusCodes)
+	}
+
+	// api/confession/get_list.go:135
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
@@ -144,7 +166,7 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfGetList", statusCodes)
 	}
 
-	// api/confession/get_myList.go:104
+	// api/confession/get_myList.go:127
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
@@ -155,13 +177,14 @@ func init() {
 		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfGetMyList", statusCodes)
 	}
 
-	// api/confession/like.go:71
+	// api/confession/like.go:87
 	{
 		statusCodes := []kit.Code{
 			comm.CodeOK,
 			comm.CodeDatabaseError,
 			comm.CodeNotLoggedIn,
 			comm.CodeParameterInvalid,
+			comm.CodeRepeatAction,
 		}
 		swagger.MustRegisterBusinessStatusCodes("app/api/confession.hfLike", statusCodes)
 	}
