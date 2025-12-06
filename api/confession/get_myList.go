@@ -46,6 +46,8 @@ type MyConfession struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	ImageUrl  []string  `json:"image_url"`
+	LikeCount int64     `json:"like_count"` // 总赞数
+	IsLiked   bool      `json:"is_liked"`   // 我是否赞过
 }
 type GetMyListApiResponse struct {
 	TotalCount int64          `json:"total_count" desc:"帖子数目"`
@@ -55,6 +57,7 @@ type GetMyListApiResponse struct {
 // Run Api业务逻辑执行点
 func (g *GetMyListApi) Run(ctx *gin.Context) kit.Code {
 	p := repo.NewConfessionRepo()
+	l := repo.NewLikeRepo()
 	request := g.Request.Query
 	id, err := jwt.GetUid(ctx)
 	if err != nil {
@@ -68,19 +71,38 @@ func (g *GetMyListApi) Run(ctx *gin.Context) kit.Code {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("获取表白列表失败")
 		return comm.CodeDatabaseError
 	}
+	confessionIDs := make([]int64, 0)
+	for _, v := range list {
+		confessionIDs = append(confessionIDs, v.ID)
+	}
+
+	likeMap, err := l.GetBatchLikeInfo(ctx, confessionIDs, uid)
+	if err != nil {
+		nlog.Pick().Errorf("获取点赞信息失败: %v", err)
+		return comm.CodeDatabaseError
+	}
 
 	filteredPosts := make([]MyConfession, 0)
-	for _, post := range list {
-		newPost := MyConfession{
-			Id:        post.ID,
-			UserId:    post.UserID,
-			Name:      post.Name,
-			Content:   post.Content,
-			CreatedAt: post.CreatedAt,
-			UpdatedAt: post.UpdatedAt,
-			ImageUrl:  strings.Split(post.ImageUrls, ","),
+	for _, item := range list {
+		newConfession := MyConfession{
+			Id:        item.ID,
+			UserId:    item.UserID,
+			Name:      item.Name,
+			Content:   item.Content,
+			CreatedAt: item.CreatedAt,
+			UpdatedAt: item.UpdatedAt,
+			ImageUrl:  strings.Split(item.ImageUrls, ","),
 		}
-		filteredPosts = append(filteredPosts, newPost)
+		// 填充点赞信息
+		if info, ok := likeMap[item.ID]; ok {
+			newConfession.LikeCount = info.LikeCount
+			newConfession.IsLiked = info.IsLiked
+		} else {
+			newConfession.LikeCount = 0
+			newConfession.IsLiked = false
+		}
+
+		filteredPosts = append(filteredPosts, newConfession)
 	}
 
 	g.Response = GetMyListApiResponse{

@@ -39,6 +39,7 @@ func Route(router *gin.Engine) {
 			confessionGroup.GET("/list", confession.GetListHandler())
 			confessionGroup.GET("/my_list", confession.GetMyListHandler())
 			confessionGroup.DELETE("/delete", confession.DeleteHandler())
+			confessionGroup.POST("/like", confession.LikeHandler())
 		}
 
 		blockGroup := r.Group("/block", middleware.Auth(true))

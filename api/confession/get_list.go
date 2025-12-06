@@ -47,6 +47,8 @@ type AnswerConfession struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	ImageUrl  []string  `json:"image_url"`
 	IsBlocked bool      `json:"is_blocked"`
+	LikeCount int64     `json:"like_count"` // 总赞数
+	IsLiked   bool      `json:"is_liked"`   // 我是否赞过
 }
 type GetListApiResponse struct {
 	TotalCount  int64              `json:"total_count" desc:"帖子数目"`
@@ -57,6 +59,7 @@ type GetListApiResponse struct {
 func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
 	p := repo.NewConfessionRepo()
 	b := repo.NewBlockRepo()
+	l := repo.NewLikeRepo()
 	request := g.Request.Query
 	id, err := jwt.GetUid(ctx)
 	if err != nil {
@@ -70,6 +73,10 @@ func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
 		nlog.Pick().WithContext(ctx).WithError(err).Warn("获取表白列表失败")
 		return comm.CodeListError
 	}
+	confessionIDs := make([]int64, 0)
+	for _, v := range list {
+		confessionIDs = append(confessionIDs, v.ID)
+	}
 
 	// 获取拉黑关系
 	blockList, total, err := b.GetBlockedList(ctx, uid, request.PageNum, request.PageSize)
@@ -82,19 +89,35 @@ func (g *GetListApi) Run(ctx *gin.Context) kit.Code {
 		blockedIDs[blk.BlockedID] = true
 	}
 
+	// 批量去 Redis 查询点赞信息
+	likeMap, err := l.GetBatchLikeInfo(ctx, confessionIDs, uid)
+	if err != nil {
+		nlog.Pick().Errorf("获取点赞信息失败: %v", err)
+		return comm.CodeDatabaseError
+	}
+
 	filteredConfessions := make([]AnswerConfession, 0)
-	for _, post := range list {
+	for _, item := range list {
 		isBlocked := blockedIDs[uid]
 		newConfession := AnswerConfession{
-			Id:        post.ID,
-			UserId:    post.UserID,
-			Name:      post.Name,
-			Content:   post.Content,
-			CreatedAt: post.CreatedAt,
-			UpdatedAt: post.UpdatedAt,
-			ImageUrl:  strings.Split(post.ImageUrls, ","),
+			Id:        item.ID,
+			UserId:    item.UserID,
+			Name:      item.Name,
+			Content:   item.Content,
+			CreatedAt: item.CreatedAt,
+			UpdatedAt: item.UpdatedAt,
+			ImageUrl:  strings.Split(item.ImageUrls, ","),
 			IsBlocked: isBlocked,
 		}
+		// 填充点赞信息
+		if info, ok := likeMap[item.ID]; ok {
+			newConfession.LikeCount = info.LikeCount
+			newConfession.IsLiked = info.IsLiked
+		} else {
+			newConfession.LikeCount = 0
+			newConfession.IsLiked = false
+		}
+
 		filteredConfessions = append(filteredConfessions, newConfession)
 	}
 

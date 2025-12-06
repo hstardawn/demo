@@ -42,4 +42,5 @@ var (
 	CodeListError          = kit.NewCode(30013, "获取列表失败")
 	CodeConfessionNotFound = kit.NewCode(30014, "帖子不存在")
 	CodeCommentNotFound    = kit.NewCode(30015, "评论不存在")
+	CodeRepeatAction       = kit.NewCode(30016, "重复无效操作")
 )
